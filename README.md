@@ -58,3 +58,7 @@ Review Board now reads the current GitHub proposal body **and** signed-in GitHub
 ## v0.9 Pilot Console
 
 The **Review Pilot Console** guides one real GitHub proposal/validation/human-review acceptance test. Operators explicitly submit an innocuous two-step blueprint through a GitHub issue; the dashboard then verifies public issue/comment metadata and linked completed GitHub Actions runs, without tokens or automatic execution. Pilot observations are explicitly not execution receipts. [Operator guide](docs/PILOT-ACCEPTANCE.md).
+
+## v0.9.1: real GitHub run-path compatibility
+
+Live pilot issue [#11](https://github.com/MichaelWave369/FieldDeck/issues/11) generated a successful validator run [#37730046473](https://github.com/MichaelWave369/FieldDeck/actions/runs/37730046473), but the v0.9 dashboard incorrectly marked it UNCONFIRMED_VALIDATION_RUN. The REST API reported `path: ".github/workflows/blueprint-review.yml"`; the verifier only accepted an owner-qualified `@refs/` path. v0.9.1 accepts both exact expected formats and retains all repository, workflow, event, run ID, completion and success checks. Once deployed, run **Pilot Console → Verify Issue → 11**; no new pilot proposal is needed. The validation run does not authorize execution.

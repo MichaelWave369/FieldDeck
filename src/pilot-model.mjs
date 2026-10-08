@@ -66,13 +66,20 @@ export function isVerifiedRun(run, repo, runId, kind) {
   const event = kind === 'validation' ? 'issues' : 'issue_comment';
   const name = kind === 'validation' ? 'FieldDeck blueprint review validation' : 'FieldDeck human review decision';
   if (!file) return false;
+  // GitHub REST API commonly reports a repository-relative workflow path:
+  // ".github/workflows/blueprint-review.yml" (as seen in live run #37730046473).
+  // Some workflow references include the full owner/repo and an @refs/ suffix.
+  // Accept only these explicit, repository-bound forms, never substring matches.
+  const relativePath = '.github/workflows/' + file;
+  const actualPath = run?.path;
+  const pathMatches = actualPath === relativePath
+    || (typeof actualPath === 'string' && actualPath.startsWith(repo + '/' + relativePath + '@refs/'));
   return !!run && String(run.id) === runId
     && run.repository?.full_name === repo
     && run.status === 'completed' && run.conclusion === 'success'
     && run.event === event
     && run.name === name
-    && typeof run.path === 'string'
-    && run.path.includes('/.github/workflows/' + file + '@');
+    && pathMatches;
 }
 
 /**
