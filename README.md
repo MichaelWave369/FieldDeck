@@ -4,7 +4,7 @@ Human + agent action deck. React on GitHub Pages, a public agent-readable manife
 
 **Governance:** capability does not grant authority. Static Pages cannot execute scripts on your machine, store secrets, or authorize an agent.
 
-## v0.5 features
+## v0.6 features
 
 - Responsive React dashboard, live action filtering, action inspector, recent local interaction log.
 - Six ready cards: 3 GitHub Actions handoffs and 3 browser-only actions.
@@ -42,3 +42,7 @@ After merging this PR, visit FieldDeck, scroll to Chain Lab, click **REQUEST APP
 ## v0.5 blueprints and preflight
 
 Chain Lab supports three templates, strict JSON blueprint import/export and local read-only preflight. Imports cannot supply custom scripts, change permissions, or launch a job. Custom chains remain draft-only, regardless of passing preflight. Only the fixed Field Health Sweep has an authorized request route through GitHub IssueOps. See [Blueprints & preflight](docs/BLUEPRINTS.md).
+
+## v0.6 blueprint review proposals
+
+A human or agent can prepare a **review-only** GitHub issue from Chain Lab using the PROPOSE FOR REVIEW button. A separate validation workflow checks the strict JSON blueprint, publishes a sanitized evidence artifact and SHA-256 fingerprint, and comments the outcome. The issue is public and must contain no secrets. Validation **never executes or approves** the proposed chain. See [Blueprint Review protocol](docs/BLUEPRINT-REVIEW.md).

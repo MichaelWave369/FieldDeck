@@ -1,0 +1,73 @@
+name: FieldDeck blueprint review validation
+on:
+  issues:
+    types: [opened]
+
+# Public issues are untrusted, and this workflow never executes requested steps.
+permissions:
+  contents: read
+
+concurrency:
+  group: fielddeck-proposal-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: "startsWith(github.event.issue.title, 'FD PROPOSE: ')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Schema validation only, no action execution
+        run: node scripts/proposal_receipt.mjs "$GITHUB_EVENT_PATH" receipts/blueprint-review.json
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fielddeck-blueprint-review-${{ github.event.issue.number }}-${{ github.run_id }}
+          path: receipts/blueprint-review.json
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Comment validation outcome
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            let receipt;
+            try {
+              receipt = JSON.parse(fs.readFileSync('receipts/blueprint-review.json', 'utf8'));
+            } catch {
+              receipt = { status: 'REJECTED', reason: 'VALIDATOR_FAILURE', execution_authorized: false };
+            }
+            const valid = receipt.status === 'VALID_FOR_REVIEW';
+            const lines = [
+              '### FieldDeck blueprint validation',
+              '',
+              '- Result: **' + (valid ? 'VALID FOR HUMAN REVIEW' : 'REJECTED') + '**',
+              '- Execution authorized: **NO**',
+              '- Tasks executed: **NONE**',
+              '- Human approval: **NOT YET PERFORMED**',
+              '- Validation run: https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId
+            ];
+            if (valid) {
+              lines.push('- Blueprint fingerprint (SHA-256): `' + receipt.canonical_sha256 + '`');
+              lines.push('- Reviewed-step count: ' + receipt.steps_count);
+              lines.push('', 'This confirms a valid proposal format only. Any future approval must be reviewed and merged as a separate code change.');
+            } else {
+              lines.push('- Reason: ' + (receipt.reason || 'VALIDATOR_FAILURE'));
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: lines.join('\n')
+            });

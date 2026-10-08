@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5.0",
+  "schema_version": "0.6.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -171,5 +171,20 @@
     "preflight_receipt": false,
     "custom_blueprints_executable": false,
     "approved_execution_route": "authenticated-github-issueops"
+  },
+  "proposal_protocol": {
+    "version": "v0.6",
+    "kind": "fielddeck.chain.blueprint",
+    "request_route": "github_issue",
+    "issue_title": "FD PROPOSE: {blueprint_name}",
+    "validation_workflow": ".github/workflows/blueprint-review.yml",
+    "human_review_required": true,
+    "proposal_issues_public": true,
+    "automatic_promotion": false,
+    "execution_authorized": false,
+    "review_outcomes": [
+      "VALID_FOR_REVIEW",
+      "REJECTED"
+    ]
   }
 }

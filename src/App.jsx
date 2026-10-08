@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { issueRequestUrl } from '../scripts/issue_gate.mjs';
 import ChainLab from './ChainLab.jsx';
+import { proposalIssueUrl } from './proposal-model.mjs';
 import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
 import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
 import {
@@ -234,7 +235,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.5.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.6.0</span></div>
         </header>
 
         <div className="content">
@@ -328,6 +329,11 @@ export default function App() {
           </section>
           <ChainLab
             catalogActions={actions}
+            onPropose={(blueprint) => {
+              const url = proposalIssueUrl(REPO, blueprint);
+              const opened = window.open(url, '_blank', 'noopener,noreferrer');
+              record({ label: 'Blueprint Proposal' }, 'HANDOFF', 'Opened a prefilled review-only GitHub issue. Submit there to request validation. No execution occurred.');
+            }}
             onRequest={() => {
               const chainAction = actions.find(a => a.id === 'field-health-sweep' && a.status === 'ready');
               if (chainAction) activate(chainAction);
@@ -344,7 +350,7 @@ export default function App() {
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.5.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.6.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>

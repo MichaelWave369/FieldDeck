@@ -92,3 +92,9 @@
 .blueprint-message,.blueprint-error{padding:10px 12px;border-radius:6px;background:#163a38;color:#a8efdc;font-size:11px;line-height:1.5}
 .blueprint-error{background:#452830;color:#ffb5b5}
 @media(max-width:640px){.blueprint-templates{align-items:stretch;flex-direction:column}.blueprint-templates select{width:100%;min-width:0}.blueprint-head{align-items:stretch;flex-direction:column}.chain-buttons button{width:100%}}
+
+/* v0.6 proposal review. Retain FieldDeck's midnight blue and mint surfaces. */
+.blueprint-templates input{background:#0d1a2a;color:#d3f8ed;border:1px solid #35645f;border-radius:6px;padding:10px;min-width:210px;max-width:100%;font-size:11px}
+.chain-propose{border-color:#46877b!important;color:#a0fbe2!important;background:#183e40!important}
+.chain-propose:hover:not(:disabled){background:#255957!important}
+@media(max-width:640px){.blueprint-templates input{width:100%;min-width:0}}
