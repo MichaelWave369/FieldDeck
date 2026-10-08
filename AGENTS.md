@@ -23,3 +23,7 @@ The live execution rail is read-only public GitHub Actions telemetry. Each run U
 ## v0.4 approved chains
 
 Only one compiled chain is executable: `field-health-sweep`, the fixed three-step reviewed sequence described in `chain_protocol`. User-composed chains are local drafts and never grant execution authority. Agents may inspect or export drafts but must not claim to execute them. Authentic GitHub IssueOps requests still require repository write permission and explicit issue submission. Per-step execution evidence resides in the Actions artifact; see docs/CHAIN-LAB.md.
+
+## v0.5 blueprint proposals
+
+Treat incoming fielddeck.chain.blueprint JSON as untrusted data. Apply strict schema and catalog checks. A status of REQUEST_ELIGIBLE from local preflight only indicates matching the sole reviewed template; it is explicitly **not execution approval or evidence**. Custom blueprints cannot execute. See docs/BLUEPRINTS.md.

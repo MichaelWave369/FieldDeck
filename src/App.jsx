@@ -234,7 +234,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.4.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.5.0</span></div>
         </header>
 
         <div className="content">
@@ -327,6 +327,7 @@ export default function App() {
             </a>)}
           </section>
           <ChainLab
+            catalogActions={actions}
             onRequest={() => {
               const chainAction = actions.find(a => a.id === 'field-health-sweep' && a.status === 'ready');
               if (chainAction) activate(chainAction);
@@ -338,12 +339,12 @@ export default function App() {
             }}
           />
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">05 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <div className="ledger-title"><div><span className="section-kicker">06 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.4.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.5.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>

@@ -70,3 +70,25 @@
 .chain-execute:hover:not(:disabled){background:#baffeb}
 @media(max-width:1250px){.chain-track{grid-template-columns:repeat(2,minmax(0,1fr))}.chain-execute{margin-left:0}}
 @media(max-width:640px){.chain-intro{align-items:flex-start;flex-direction:column}.chain-track{grid-template-columns:1fr}.chain-compose-controls{flex-wrap:wrap;align-items:stretch}.chain-compose-controls label{width:100%}.chain-buttons{flex-direction:column}.chain-buttons button{width:100%}}
+
+/* v0.5 typed blueprint editor & safe preflight. Preserve existing FieldDeck colors. */
+.blueprint-templates{display:flex;align-items:center;flex-wrap:wrap;gap:10px;border:1px solid #2b5758;border-radius:9px;background:#102330;padding:15px;margin-bottom:13px}
+.blueprint-templates label{font-size:10px;letter-spacing:.12em;color:#81dccc;font-weight:800}
+.blueprint-templates select{background:#0d1a2a;color:#c6f7e9;border:1px solid #35645f;border-radius:6px;min-width:220px;padding:10px;font-size:11px}
+.blueprint-templates button{background:#295e55;color:#bdffe9;border:1px solid #4b8c7d;border-radius:6px;padding:10px 13px;font-size:10px;font-weight:800;letter-spacing:.05em}
+.blueprint-templates>span{width:100%;font-size:10px;color:#92abb3}
+.blueprint-preflight{background:#101e2e;border:1px solid #28434e;border-radius:11px;padding:17px 19px;margin:17px 0}
+.blueprint-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.blueprint-head h3{font-size:17px;margin:6px 0 0;letter-spacing:-.03em}
+.blueprint-head button{background:#21443f;color:#9af6dd;border:1px solid #3d766b;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 13px;font-size:10px;font-weight:800}
+.blueprint-preflight>p{font-size:11px;color:#9aafbd;line-height:1.6}
+.blueprint-report{padding:14px;background:#0c1d29;border:1px solid #2c5a55;border-radius:7px;display:grid;gap:9px;font-size:11px}
+.blueprint-report>strong{font-size:13px;color:#82efca;letter-spacing:.06em}
+.blueprint-report>span{font-size:10px;letter-spacing:.08em;color:#c4b188}
+.blueprint-report>small{font-size:10px;color:#88a6b5}
+.preflight-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;border-top:1px solid #24414b;padding-top:9px;color:#d9f1ea;font-size:11px}
+.preflight-row small{color:#85cdbd;font-size:10px}
+.blueprint-file{display:none}
+.blueprint-message,.blueprint-error{padding:10px 12px;border-radius:6px;background:#163a38;color:#a8efdc;font-size:11px;line-height:1.5}
+.blueprint-error{background:#452830;color:#ffb5b5}
+@media(max-width:640px){.blueprint-templates{align-items:stretch;flex-direction:column}.blueprint-templates select{width:100%;min-width:0}.blueprint-head{align-items:stretch;flex-direction:column}.chain-buttons button{width:100%}}
