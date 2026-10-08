@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4.0",
+  "schema_version": "0.5.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -160,5 +160,16 @@
       }
     ],
     "execution_authority": "GitHub IssueOps permission gate"
+  },
+  "blueprint_protocol": {
+    "version": "v0.5",
+    "schema_kind": "fielddeck.chain.blueprint",
+    "import_policy": "strict-validate-and-sanitize",
+    "max_bytes": 16384,
+    "max_steps": 6,
+    "preflight": "local-read-only",
+    "preflight_receipt": false,
+    "custom_blueprints_executable": false,
+    "approved_execution_route": "authenticated-github-issueops"
   }
 }
