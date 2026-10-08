@@ -210,7 +210,7 @@ export default function App() {
           {notice && <div className="notice" role="status"><Check size={16} />{notice}<button type="button" aria-label="Dismiss" onClick={() => setNotice('')}>×</button></div>}
 
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">03 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div>
+            <div className="ledger-title"><div><span className="section-kicker">03 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
