@@ -187,3 +187,32 @@
 .pilot-confirm{display:inline-flex;align-items:center;gap:8px;color:#8cebc9;font-size:11px;font-weight:800}
 @media(max-width:1200px){.pilot-steps{grid-template-columns:1fr 1fr}.pilot-step:last-child{grid-column:1/-1}}
 @media(max-width:640px){.pilot-heading{flex-direction:column}.pilot-steps{grid-template-columns:1fr}.pilot-step:last-child{grid-column:auto}.pilot-report-head{align-items:stretch;flex-direction:column}.pilot-report-grid{grid-template-columns:1fr 1fr}}
+
+/* v1.0 governed promotion planning */
+.promotion-gate{margin-top:46px;padding-top:27px;border-top:1px solid #2b4955;scroll-margin-top:24px}
+.promotion-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:19px}
+.promotion-heading h2{font-size:25px;letter-spacing:-.04em;margin:8px 0}
+.promotion-heading p{max-width:660px;color:#9ab6be;font-size:12px;line-height:1.7;margin:0}
+.promotion-locked{display:inline-flex;align-items:center;gap:8px;padding:11px 12px;background:#3d3034;border:1px solid #85595e;color:#f6b5b6;border-radius:7px;white-space:nowrap;font-size:10px;font-weight:800;letter-spacing:.07em}
+.promotion-panel{display:flex;justify-content:space-between;gap:16px;align-items:center;border:1px solid #3c6b65;background:#122c36;border-radius:10px;padding:19px}
+.promotion-summary{display:grid;gap:7px;min-width:0}
+.promotion-summary strong{font-size:12px;color:#b1f2e1}
+.promotion-summary small{font-size:11px;color:#95b4bf;overflow-wrap:anywhere}
+.promotion-build{display:inline-flex;align-items:center;justify-content:center;gap:7px;color:#c9fdeb;border:1px solid #5b9d89;background:#235b52;border-radius:7px;padding:12px;font-size:10px;letter-spacing:.04em;font-weight:800;flex-shrink:0}
+.promotion-build:disabled{opacity:.45;cursor:not-allowed}
+.promotion-candidate{margin-top:14px;display:grid;gap:16px;padding:20px;border:1px solid #437a6f;border-radius:10px;background:#10252c}
+.promotion-candidate h3{font-size:19px;color:#d7f6e9;margin:6px 0}
+.promotion-candidate code{color:#8ce6c7;font-size:11px;overflow-wrap:anywhere}
+.promotion-facts{display:grid;grid-template-columns:minmax(115px,1fr) 1.6fr;gap:10px;border-top:1px solid #294e54;border-bottom:1px solid #294e54;padding:15px 0}
+.promotion-facts span{color:#8eabb8;font-size:10px;letter-spacing:.07em}
+.promotion-facts strong{color:#dbf1e9;font-size:10px;overflow-wrap:anywhere}
+.promotion-facts a{display:inline-flex;align-items:center;gap:6px;color:#9dffdd;text-decoration:none;font-size:10px;font-weight:800}
+.promotion-checklist{display:grid;gap:11px}
+.promotion-checklist>strong{font-size:12px;color:#ceede3}
+.promotion-checklist>div{display:flex;gap:11px;align-items:flex-start;color:#a5c0c6;font-size:11px;line-height:1.55}
+.promotion-checklist>div>span:first-child{color:#81cfb9}
+.promotion-actions{display:flex;gap:9px;flex-wrap:wrap}
+.promotion-actions button{display:inline-flex;gap:8px;align-items:center;justify-content:center;background:#1c514a;border:1px solid #4f9585;border-radius:7px;padding:12px;color:#bdf5e3;font-size:10px;font-weight:800}
+.promotion-candidate>p{margin:0;color:#d2b6a1;font-size:11px;line-height:1.65}
+@media(max-width:780px){.promotion-heading,.promotion-panel{flex-direction:column;align-items:stretch}.promotion-locked{width:max-content;max-width:100%}.promotion-build{flex-shrink:1}}
+@media(max-width:600px){.promotion-facts{grid-template-columns:1fr;gap:6px}}
