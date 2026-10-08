@@ -3,6 +3,7 @@ import { issueRequestUrl } from '../scripts/issue_gate.mjs';
 import ChainLab from './ChainLab.jsx';
 import ReviewBoard from './ReviewBoard.jsx';
 import PilotConsole from './PilotConsole.jsx';
+import PromotionGate from './PromotionGate.jsx';
 import { proposalIssueUrl } from './proposal-model.mjs';
 import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
 import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
@@ -63,6 +64,7 @@ function Glyph({ name, size = 20 }) {
 
 export default function App() {
   const [catalog, setCatalog] = useState(null);
+  const [promotionEvidence,setPromotionEvidence] = useState(null);
   const [error, setError] = useState('');
   const [category, setCategory] = useState('All actions');
   const [search, setSearch] = useState('');
@@ -219,6 +221,7 @@ export default function App() {
         <a className="nav-link chain-side-link" href="#chain-lab"><ListChecks size={17} strokeWidth={1.7}/><span>Chain Lab</span><ArrowUpRight size={13}/></a>
         <a className="nav-link chain-side-link" href="#review-board"><ShieldCheck size={17} strokeWidth={1.7}/><span>Review Board</span><ArrowUpRight size={13}/></a>
         <a className="nav-link chain-side-link" href="#pilot-console"><Activity size={17} strokeWidth={1.7}/><span>Pilot Console</span><ArrowUpRight size={13}/></a>
+        <a className="nav-link chain-side-link" href="#promotion-gate"><ShieldCheck size={17} strokeWidth={1.7}/><span>Promotion Gate</span><ArrowUpRight size={13}/></a>
         <div className="side-caption decks-caption">MY DECKS</div>
         <nav className="navigation deck-nav" aria-label="Personal decks">
           {decks.map(deck => <button key={deck.id} type="button"
@@ -239,7 +242,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.9.1</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v1.0.0</span></div>
         </header>
 
         <div className="content">
@@ -349,17 +352,21 @@ export default function App() {
             }}
           />
           <ReviewBoard repository={REPO}/>
-          <PilotConsole repository={REPO} onExport={(report) => {
+          <PilotConsole repository={REPO} onVerifiedEvidence={setPromotionEvidence} onExport={(report) => {
             saveJSON('fielddeck-review-pilot-observation.json', report);
             setNotice('Read-only GitHub evidence report downloaded. It is not an execution receipt.');
           }}/>
+          <PromotionGate context={promotionEvidence} onExport={(candidate)=>{
+            saveJSON('fielddeck-implementation-candidate.json', candidate);
+            setNotice('Default-deny implementation candidate exported. No runnable action created.');
+          }}/>
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">08 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <div className="ledger-title"><div><span className="section-kicker">09 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.9.1 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v1.0.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>
