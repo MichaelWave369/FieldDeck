@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { issueRequestUrl } from '../scripts/issue_gate.mjs';
 import ChainLab from './ChainLab.jsx';
+import ReviewBoard from './ReviewBoard.jsx';
 import { proposalIssueUrl } from './proposal-model.mjs';
 import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
 import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
@@ -215,6 +216,7 @@ export default function App() {
           })}
         </nav>
         <a className="nav-link chain-side-link" href="#chain-lab"><ListChecks size={17} strokeWidth={1.7}/><span>Chain Lab</span><ArrowUpRight size={13}/></a>
+        <a className="nav-link chain-side-link" href="#review-board"><ShieldCheck size={17} strokeWidth={1.7}/><span>Review Board</span><ArrowUpRight size={13}/></a>
         <div className="side-caption decks-caption">MY DECKS</div>
         <nav className="navigation deck-nav" aria-label="Personal decks">
           {decks.map(deck => <button key={deck.id} type="button"
@@ -235,7 +237,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.6.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.7.0</span></div>
         </header>
 
         <div className="content">
@@ -344,13 +346,14 @@ export default function App() {
               setNotice('Local chain draft exported. This grants no execution permission.');
             }}
           />
+          <ReviewBoard repository={REPO}/>
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">06 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <div className="ledger-title"><div><span className="section-kicker">07 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.6.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.7.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>

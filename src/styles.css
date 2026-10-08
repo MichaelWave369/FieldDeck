@@ -98,3 +98,44 @@
 .chain-propose{border-color:#46877b!important;color:#a0fbe2!important;background:#183e40!important}
 .chain-propose:hover:not(:disabled){background:#255957!important}
 @media(max-width:640px){.blueprint-templates input{width:100%;min-width:0}}
+
+/* v0.7 Blueprint review board, keeping original blue/mint palette. */
+.review-board{margin-top:48px;border-top:1px solid #2a3e4b;padding-top:27px;scroll-margin-top:25px}
+.review-head{display:flex;justify-content:space-between;align-items:center;gap:22px;margin-bottom:18px}
+.review-head h2{font-size:25px;letter-spacing:-.04em;margin:6px 0 9px}
+.review-head p{font-size:12px;color:#91aab8;line-height:1.65;max-width:610px;margin:0}
+.review-refresh{display:flex;align-items:center;gap:8px;border:1px solid #3c6b65;background:#193e3f;color:#aff6df;border-radius:8px;padding:11px 12px;font-size:10px;font-weight:800;letter-spacing:.06em}
+.review-refresh:disabled{opacity:.5;cursor:not-allowed}
+.review-grid{display:grid;grid-template-columns:minmax(190px,1fr) minmax(270px,1.45fr);gap:15px}
+.review-items,.review-detail{border:1px solid #2c4653;background:#0e1b2b;border-radius:10px;padding:15px;min-width:0}
+.review-items{display:flex;flex-direction:column;gap:8px;max-height:540px;overflow:auto}
+.review-kicker{font-size:10px;letter-spacing:.11em;color:#7ac6be;font-weight:800}
+.review-issue{border:1px solid #2e4852;border-radius:7px;background:#152637;text-align:left;display:flex;flex-direction:column;gap:8px;padding:12px;color:#d3ebea}
+.review-issue.active{border-color:#65baaa;background:#1d393e}
+.review-issue:hover{background:#20414a}
+.review-issue-top{display:flex;justify-content:space-between;gap:12px;color:#75dcc4;font-size:10px;letter-spacing:.08em}
+.review-issue-top>span{color:#a6bcc4}
+.review-issue>strong{font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.review-issue>small{font-size:10px;color:#8ea7b1}
+.review-detail{display:flex;flex-direction:column;gap:13px}
+.review-detail h3{font-size:20px;margin:0;overflow-wrap:anywhere}
+.review-detail>p{font-size:12px;color:#97aeba;line-height:1.65;margin:0}
+.review-open,.review-evidence{display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;font-size:10px;font-weight:800;letter-spacing:.06em;border-radius:7px;padding:12px}
+.review-open{color:#bdfce8;background:#26534b;border:1px solid #519787}
+.review-evidence{background:#173744;color:#93d7dc;border:1px solid #3f6d72}
+.review-evidence:disabled{opacity:.5;cursor:not-allowed}
+.review-fingerprint{display:flex;flex-direction:column;gap:8px;border:1px solid #35545e;padding:10px;background:#0b1b29;border-radius:7px}
+.review-fingerprint span{font-size:9px;letter-spacing:.1em;color:#9db5c1}
+.review-fingerprint code{font-size:10px;overflow-wrap:anywhere;color:#91efcf}
+.review-commands{display:flex;gap:8px;flex-wrap:wrap}
+.review-commands button{flex:1;min-width:145px;display:flex;align-items:center;justify-content:center;gap:6px;color:#9de4d5;background:#193a3e;border:1px solid #3c7771;border-radius:7px;padding:10px 9px;font-size:9px;font-weight:800;letter-spacing:.04em}
+.review-commands button:disabled{opacity:.4;cursor:not-allowed}
+.review-warning{font-size:10px;color:#b6a88c;line-height:1.6}
+.review-notice,.review-message-error,.review-empty{border:1px solid #375f5b;color:#acebdc;padding:14px;border-radius:8px;background:#132d32;font-size:11px;line-height:1.6}
+.review-message-error{color:#f0b7b7;background:#3c2930;border-color:#754750}
+.review-message-error a{display:inline-flex;gap:4px;align-items:center;color:#baf1e3}
+.review-empty{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:22px;color:#c8d9de;background:#122432}
+.review-empty span{color:#91adba}
+.review-empty a{display:inline-flex;gap:5px;align-items:center;color:#89e8cc;font-size:10px;font-weight:800;text-decoration:none}
+@media(max-width:850px){.review-grid{grid-template-columns:1fr}.review-items{max-height:320px}}
+@media(max-width:640px){.review-head{align-items:flex-start;flex-direction:column}}

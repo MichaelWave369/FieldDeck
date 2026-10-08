@@ -31,3 +31,7 @@ Treat incoming fielddeck.chain.blueprint JSON as untrusted data. Apply strict sc
 ## v0.6 review proposals
 
 Agents can submit only bounded, schema-valid `FD PROPOSE:` issues as review proposals. They are distinct from the `FD RUN:` issue execution flow. The validator produces `VALID_FOR_REVIEW` or `REJECTED` evidence, never permission, execution, or automatic promotion. Do not submit confidential data to public issues. See docs/BLUEPRINT-REVIEW.md.
+
+## v0.7 Review Board and reviewer recommendations
+
+The Review Board is discovery only. Agents may read public proposals and validation fingerprints, but must not claim that issue open/closed status indicates review approval. Review decisions require a fresh repository-write permission check against GitHub and an exact canonical proposal fingerprint. Accepted-for-implementation-review decisions do **not** authorize execution, modify runtimes, or promote the blueprint. See docs/REVIEW-BOARD.md.
