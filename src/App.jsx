@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { issueRequestUrl } from '../scripts/issue_gate.mjs';
 import {
   Activity, ArrowUpRight, Bot, BrainCircuit, Check, ChevronRight,
   Clock3, Database, Download, ExternalLink, HardDrive, Layers3,
@@ -13,7 +14,6 @@ const ICONS = {
 const NAV = ['All actions', 'Skills', 'Scripts', 'Macros', 'Automations', 'Diagnostics', 'Agents', 'Apps'];
 const CATALOG_URL = import.meta.env.BASE_URL + 'fielddeck.manifest.json';
 const REPO = import.meta.env.VITE_REPOSITORY || 'MichaelWave369/FieldDeck';
-const WORKFLOW_URL = 'https://github.com/' + REPO + '/actions/workflows/run-task.yml';
 const VALID_KINDS = new Set(['workflow', 'copy', 'export', 'link', 'future']);
 
 function validatedCatalog(data) {
@@ -99,8 +99,8 @@ export default function App() {
     if (!action || action.status !== 'ready') return;
     try {
       if (action.kind === 'workflow') {
-        window.open(WORKFLOW_URL, '_blank', 'noopener,noreferrer');
-        record(action, 'HANDOFF', 'Opened authenticated GitHub Actions. Choose Run workflow and select ' + action.task + '. Nothing has run yet.');
+        window.open(issueRequestUrl(REPO, action.task), '_blank', 'noopener,noreferrer');
+        record(action, 'HANDOFF', 'Opened a prefilled GitHub request. Review and SUBMIT the issue to request the job; no job has run yet. Only repository writers are authorized.');
       } else if (action.kind === 'copy') {
         await navigator.clipboard.writeText(action.payload);
         record(action, 'LOCAL', 'Research skill copied to clipboard.');
@@ -146,7 +146,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.1.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.2.0</span></div>
         </header>
 
         <div className="content">
@@ -195,13 +195,14 @@ export default function App() {
                 <div className="inspect-details">
                   <div><span>STATUS</span><strong>{selected.status.toUpperCase()}</strong></div>
                   <div><span>RISK LEVEL</span><strong>{selected.risk.toUpperCase()}</strong></div>
-                  <div><span>EXECUTION</span><strong>{selected.kind === 'workflow' ? 'GITHUB HANDOFF' : selected.kind === 'future' ? 'DISABLED' : 'BROWSER'}</strong></div>
+                  <div><span>EXECUTION</span><strong>{selected.kind === 'workflow' ? 'GITHUB ISSUE REQUEST' : selected.kind === 'future' ? 'DISABLED' : 'BROWSER'}</strong></div>
                 </div>
                 <button type="button" className="activate" disabled={selected.status !== 'ready'} onClick={() => activate(selected)}>
                   {selected.status === 'locked' ? <LockKeyhole size={17}/> : selected.kind === 'workflow' ? <ExternalLink size={17}/> : <Zap size={17}/>}
-                  {selected.status === 'locked' ? 'NOT ENABLED' : selected.kind === 'workflow' ? 'OPEN WORKFLOW TO RUN' : 'ACTIVATE'}
+                  {selected.status === 'locked' ? 'NOT ENABLED' : selected.kind === 'workflow' ? 'REQUEST VIA GITHUB' : 'ACTIVATE'}
                 </button>
-                <p className="inspector-footnote">{selected.kind === 'workflow' ? 'Opens the authenticated GitHub Actions page. No job runs from this button.' : 'Catalog discovery alone never authorizes remote execution.'}</p>
+                {selected.kind === 'workflow' && <a className="manual-action-link" href={'https://github.com/' + REPO + '/actions/workflows/run-task.yml'} target="_blank" rel="noreferrer">OR OPEN ACTIONS MANUALLY <ArrowUpRight size={12}/></a>}
+                <p className="inspector-footnote">{selected.kind === 'workflow' ? 'Opens a prefilled GitHub issue. Submit it to request an allowlisted job; GitHub checks your repository write permission. Receipts appear in Actions.' : 'Catalog discovery alone never authorizes remote execution.'}</p>
               </> : <p>Select an action to inspect its permissions and available controls.</p>}
             </aside>
           </div>
@@ -210,10 +211,11 @@ export default function App() {
 
           <section className="ledger">
             <div className="ledger-title"><div><span className="section-kicker">03 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.1.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.2.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>

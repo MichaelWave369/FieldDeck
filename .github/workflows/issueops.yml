@@ -1,0 +1,123 @@
+name: FieldDeck authenticated issue request
+on:
+  issues:
+    types: [opened]
+
+# GitHub issues are public. Never evaluate issue content as shell code.
+# Only users with verified repository write access may execute fixed tasks.
+permissions:
+  contents: read
+
+concurrency:
+  group: fielddeck-issue-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    if: "startsWith(github.event.issue.title, 'FD RUN: ')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      authorized: ${{ steps.gate.outputs.authorized }}
+      task: ${{ steps.gate.outputs.task }}
+      requester: ${{ steps.gate.outputs.requester }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify author, requested task, and marker
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const path = require('node:path');
+            const modulePath = pathToFileURL(path.join(process.env.GITHUB_WORKSPACE, 'scripts/issue_gate.mjs'));
+            const { parseIssueTask, eligiblePermission } = await import(modulePath.href);
+            const issue = context.payload.issue;
+            const task = parseIssueTask(issue.title, issue.body || '');
+            if (!task) {
+              core.warning('Invalid FieldDeck request; denying execution.');
+              return;
+            }
+            const username = issue.user?.login;
+            if (!username) {
+              core.warning('Missing GitHub identity; denying execution.');
+              return;
+            }
+            let permission = 'none';
+            try {
+              const response = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username
+              });
+              permission = response.data.permission;
+            } catch (error) {
+              core.warning('Permission lookup failed; denying execution (' + error.status + ').');
+              return;
+            }
+            if (!eligiblePermission(permission)) {
+              core.warning('Requester is not authorized to dispatch FieldDeck tasks.');
+              return;
+            }
+            core.setOutput('authorized', 'true');
+            core.setOutput('task', task);
+            core.setOutput('requester', username);
+            core.info('Approved scoped task: ' + task + ' for user ' + username);
+
+  execute:
+    needs: authorize
+    if: needs.authorize.outputs.authorized == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute fixed task and save receipt
+        env:
+          TASK_ID: ${{ needs.authorize.outputs.task }}
+          FIELDDECK_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          FIELDDECK_REQUESTER: ${{ needs.authorize.outputs.requester }}
+          FIELDDECK_REQUEST_CHANNEL: github-issue
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 executor/run_task.py --task "$TASK_ID" --output receipts/receipt.json
+      - name: Upload receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fielddeck-issue-${{ github.event.issue.number }}-${{ github.run_id }}
+          path: receipts/receipt.json
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Comment run outcome
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          TASK_ID: ${{ needs.authorize.outputs.task }}
+          RESULT: ${{ job.status }}
+          REQUESTER: ${{ needs.authorize.outputs.requester }}
+        with:
+          script: |
+            const task = process.env.TASK_ID;
+            const result = process.env.RESULT;
+            const url = 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId;
+            const message = [
+              '### FieldDeck execution result',
+              '',
+              '- Task: `' + task + '`',
+              '- Status: **' + result.toUpperCase() + '**',
+              '- Requested by: @' + process.env.REQUESTER,
+              '- Run and artifact: ' + url,
+              '',
+              'Receipt is available in the workflow artifacts when the runner completed successfully.',
+              'This comment is generated from the trusted workflow, not from user-supplied issue body.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number, body: message
+            });
