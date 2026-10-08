@@ -1,0 +1,7 @@
+{
+  "name": "FieldDeck",
+  "schema_version": "0.1.0",
+  "catalog": "../fielddeck.manifest.json",
+  "mode": "discovery-only",
+  "authentication": "required-for-execution"
+}

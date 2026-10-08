@@ -1,0 +1,118 @@
+{
+  "schema_version": "0.1.0",
+  "name": "FieldDeck",
+  "description": "Public discovery only; no execution rights conferred.",
+  "execution_policy": {
+    "default": "deny",
+    "require_authenticated_runner": true,
+    "freeform_shell": false,
+    "receipt_required": true
+  },
+  "actions": [
+    {
+      "id": "catalog-health",
+      "label": "Catalog Health",
+      "description": "Validate the action registry and governance invariants.",
+      "group": "Diagnostics",
+      "icon": "activity",
+      "kind": "workflow",
+      "task": "catalog-health",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "script-smoke",
+      "label": "Script Smoke Test",
+      "description": "Run a deterministic, network-free Python test in GitHub Actions.",
+      "group": "Scripts",
+      "icon": "terminal",
+      "kind": "workflow",
+      "task": "script-smoke",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "macro-demo",
+      "label": "Macro Sequence",
+      "description": "Run three fixed sample steps and publish a JSON receipt.",
+      "group": "Macros",
+      "icon": "mouse-pointer-click",
+      "kind": "workflow",
+      "task": "macro-demo",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "copy-research",
+      "label": "Research Skill",
+      "description": "Copy an evidence-first research instruction for an assistant.",
+      "group": "Skills",
+      "icon": "brain-circuit",
+      "kind": "copy",
+      "payload": "Research the topic using reliable sources. Separate observations from hypotheses. Include citations, uncertainty, counterevidence, and a reproducible evidence ledger.",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "export-catalog",
+      "label": "Export Catalog",
+      "description": "Download the complete machine-readable catalog.",
+      "group": "Agents",
+      "icon": "download",
+      "kind": "export",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "open-vessel",
+      "label": "Open SuperPhiVessel",
+      "description": "Open SuperPhiVessel in a new tab.",
+      "group": "Apps",
+      "icon": "external-link",
+      "kind": "link",
+      "url": "https://superphivessel.netlify.app/",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
+      "id": "agent-intake",
+      "label": "Agent Intake",
+      "description": "Planned authenticated action request endpoint.",
+      "group": "Agents",
+      "icon": "bot",
+      "kind": "future",
+      "status": "locked",
+      "risk": "medium"
+    },
+    {
+      "id": "local-runner",
+      "label": "Paired Local Runner",
+      "description": "Planned securely paired runner for supervised local scripts.",
+      "group": "Macros",
+      "icon": "hard-drive",
+      "kind": "future",
+      "status": "locked",
+      "risk": "high"
+    },
+    {
+      "id": "memory-sync",
+      "label": "NBG Memory Sync",
+      "description": "Planned governed memory operations for NestedBubbleGear and PhiOS.",
+      "group": "Skills",
+      "icon": "database",
+      "kind": "future",
+      "status": "locked",
+      "risk": "high"
+    },
+    {
+      "id": "scheduled-chain",
+      "label": "Scheduled Chain",
+      "description": "Planned versioned schedule and automation support.",
+      "group": "Automations",
+      "icon": "clock-3",
+      "kind": "future",
+      "status": "locked",
+      "risk": "medium"
+    }
+  ]
+}

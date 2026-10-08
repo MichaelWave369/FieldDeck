@@ -1,0 +1,34 @@
+name: Run allowlisted FieldDeck task
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Choose a reviewed task
+        required: true
+        type: choice
+        options:
+          - catalog-health
+          - script-smoke
+          - macro-demo
+permissions:
+  contents: read
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute reviewed task
+        env:
+          TASK_ID: ${{ inputs.task }}
+        run: python3 executor/run_task.py --task "$TASK_ID" --output receipts/receipt.json
+      - name: Upload receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fielddeck-receipt-${{ github.run_id }}
+          path: receipts/receipt.json
+          if-no-files-found: ignore
+          retention-days: 30
