@@ -4,7 +4,7 @@ Human + agent action deck. React on GitHub Pages, a public agent-readable manife
 
 **Governance:** capability does not grant authority. Static Pages cannot execute scripts on your machine, store secrets, or authorize an agent.
 
-## v0.8 features
+## v0.9 features
 
 - Responsive React dashboard, live action filtering, action inspector, recent local interaction log.
 - Six ready cards: 3 GitHub Actions handoffs and 3 browser-only actions.
@@ -54,3 +54,7 @@ A read-only public GitHub proposal inbox lets operators open and inspect proposa
 ## v0.8 current-proposal evidence reconciliation
 
 Review Board now reads the current GitHub proposal body **and** signed-in GitHub Actions bot validation/review comments before showing a current decision status. A changed proposal becomes stale and disables reviewer commands. The decision workflow also fails closed unless the current issue matches previously published GitHub Actions validation evidence. See [Evidence Timeline](docs/EVIDENCE-TIMELINE.md). Human recommendations still never implement or execute blueprints.
+
+## v0.9 Pilot Console
+
+The **Review Pilot Console** guides one real GitHub proposal/validation/human-review acceptance test. Operators explicitly submit an innocuous two-step blueprint through a GitHub issue; the dashboard then verifies public issue/comment metadata and linked completed GitHub Actions runs, without tokens or automatic execution. Pilot observations are explicitly not execution receipts. [Operator guide](docs/PILOT-ACCEPTANCE.md).

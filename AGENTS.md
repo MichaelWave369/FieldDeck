@@ -39,3 +39,7 @@ The Review Board is discovery only. Agents may read public proposals and validat
 ## v0.8 stale-evidence safety
 
 Before displaying or recording a reviewer decision, recompute canonical SHA-256 from the **current** GitHub issue and compare against trusted `github-actions[bot]` validation evidence. A stale validation or missing bot validation is not usable as an approval. Human review remains recommendation-only and never changes the execution allowlist. See docs/EVIDENCE-TIMELINE.md.
+
+## v0.9 operator acceptance
+
+The Review Pilot Console is an operator-driven, read-only acceptance tool, not a workflow runner. Proposing a pilot opens a GitHub draft only. Never claim the review path has been end-to-end tested until a real submitted proposal issue, a successful matching validation run, and (for human decisions) a separate matching review run are found. Exported reports must retain `execution_authorized:false`. See docs/PILOT-ACCEPTANCE.md.

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.8.0",
+  "schema_version": "0.9.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -212,5 +212,29 @@
     "reject_stale_validation": true,
     "review_does_not_grant_execution": true,
     "no_auto_implementation": true
+  },
+  "review_pilot_protocol": {
+    "version": "v0.9",
+    "test_route": "review-only-GitHub-issue",
+    "issue_submission": "operator-confirmed",
+    "live_evidence_check": "public-GitHub-REST-readonly",
+    "workflow_provenance_checks": [
+      "repository",
+      "workflow-path",
+      "event-type",
+      "run-id",
+      "completed-success"
+    ],
+    "no_auto_exec": true,
+    "no_auto_review": true,
+    "output_kind": "fielddeck.review-acceptance.read-only",
+    "outcomes": [
+      "WAITING_FOR_VALIDATION",
+      "UNCONFIRMED_VALIDATION_RUN",
+      "VALIDATION_VERIFIED",
+      "UNCONFIRMED_REVIEW_RUN",
+      "HUMAN_REVIEW_RECORDED",
+      "BLOCKED"
+    ]
   }
 }
