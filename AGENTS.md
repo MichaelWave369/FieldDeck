@@ -35,3 +35,7 @@ Agents can submit only bounded, schema-valid `FD PROPOSE:` issues as review prop
 ## v0.7 Review Board and reviewer recommendations
 
 The Review Board is discovery only. Agents may read public proposals and validation fingerprints, but must not claim that issue open/closed status indicates review approval. Review decisions require a fresh repository-write permission check against GitHub and an exact canonical proposal fingerprint. Accepted-for-implementation-review decisions do **not** authorize execution, modify runtimes, or promote the blueprint. See docs/REVIEW-BOARD.md.
+
+## v0.8 stale-evidence safety
+
+Before displaying or recording a reviewer decision, recompute canonical SHA-256 from the **current** GitHub issue and compare against trusted `github-actions[bot]` validation evidence. A stale validation or missing bot validation is not usable as an approval. Human review remains recommendation-only and never changes the execution allowlist. See docs/EVIDENCE-TIMELINE.md.

@@ -6,6 +6,11 @@ export function proposalInboxUrl(repo) {
   if (typeof repo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repo)) throw new Error('Invalid GitHub repository');
   return 'https://api.github.com/repos/' + repo + '/issues?state=all&sort=created&direction=desc&per_page=100';
 }
+export function proposalDetailsUrl(repo, issueNumber) {
+  if (typeof repo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repo)
+    || !Number.isSafeInteger(issueNumber) || issueNumber <= 0) throw new Error('Invalid proposal locator');
+  return 'https://api.github.com/repos/' + repo + '/issues/' + issueNumber;
+}
 export function proposalCommentsUrl(repo, issueNumber) {
   if (typeof repo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repo)
     || !Number.isSafeInteger(issueNumber) || issueNumber <= 0) throw new Error('Invalid proposal locator');

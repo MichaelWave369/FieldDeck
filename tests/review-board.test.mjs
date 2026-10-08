@@ -9,7 +9,7 @@ import { evaluateReview, makeReviewReceipt } from '../scripts/review_decision.mj
 const repo='MichaelWave369/FieldDeck';
 const blueprint=createBlueprint(['catalog-health', 'script-smoke'],'Research Review');
 const fp=createHash('sha256').update(JSON.stringify(blueprint)).digest('hex');
-const event={issue:{number:8,title:'FD PROPOSE: Research Review',body:proposalBody(blueprint)},comment:{body:reviewCommand('accept',fp),user:{login:'reviewer-1'}}};
+const event={issue:{number:8,title:'FD PROPOSE: Research Review',body:proposalBody(blueprint),state:'open'},comment:{body:reviewCommand('accept',fp),user:{login:'reviewer-1'}},validated_fingerprint:fp};
 
 test('inbox ignores pull requests and constructs trusted links',()=>{
   assert.match(proposalInboxUrl(repo),/api\.github\.com/);
@@ -60,5 +60,8 @@ test('reject spoofed commands, wrong fingerprint, mutations, PR comments and mal
     {...event,issue:{...event.issue,title:'FD RUN: catalog-health'}},
   ];
   for(const e of cases)assert.equal(evaluateReview(e,'write'),null);
+  assert.equal(evaluateReview({...event,validated_fingerprint:null},'write'),null);
+  assert.equal(evaluateReview({...event,validated_fingerprint:'0'.repeat(64)},'write'),null);
+  assert.equal(evaluateReview({...event,issue:{...event.issue,state:'closed'}},'write'),null);
   assert.throws(()=>makeReviewReceipt(event,'read','123'));
 });

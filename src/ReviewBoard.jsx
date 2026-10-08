@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Clipboard, Inbox, RefreshCw, ShieldCheck, ExternalLink } from 'lucide-react';
-import { parseProposalInbox, parseValidationEvidence, proposalInboxUrl, proposalCommentsUrl, reviewCommand } from './review-board-model.mjs';
+import { parseProposalInbox, proposalInboxUrl, proposalCommentsUrl, proposalDetailsUrl, reviewCommand } from './review-board-model.mjs';
+import { reconcileProposalEvidence } from './review-evidence.mjs';
 
 /**
  * Read-only public review queue. The operator posts an explicit comment on
@@ -12,6 +13,8 @@ export default function ReviewBoard({ repository }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [fingerprint, setFingerprint] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const evidenceRequest = useRef(0);
   const [evidenceLoading, setEvidenceLoading] = useState(false);
   const [evidenceError, setEvidenceError] = useState('');
   const [notice, setNotice] = useState('');
@@ -40,7 +43,9 @@ export default function ReviewBoard({ repository }) {
 
   function selectIssue(issueNumber) {
     if (issueNumber === selectedNumber) return;
+    evidenceRequest.current += 1;
     setSelectedNumber(issueNumber);
+    setSummary(null);
     setFingerprint(null);
     setEvidenceError('');
     setNotice('');
@@ -48,21 +53,30 @@ export default function ReviewBoard({ repository }) {
 
   async function loadEvidence() {
     if (!selected) return;
+    const request = ++evidenceRequest.current;
+    const issueNumber = selected.number;
     setEvidenceLoading(true);
+    setSummary(null);
     setFingerprint(null);
     setEvidenceError('');
     setNotice('');
     try {
-      const res = await fetch(proposalCommentsUrl(repository, selected.number), { headers: { Accept: 'application/vnd.github+json' } });
-      if (!res.ok) throw new Error('GitHub comments API HTTP ' + res.status);
-      const evidence = parseValidationEvidence(await res.json());
-      if (!evidence) throw new Error('No valid GitHub Actions validation fingerprint found; validate the issue first');
-      setFingerprint(evidence.fingerprint);
-      setNotice('Validator fingerprint loaded. Read the actual blueprint in GitHub before making a decision.');
+      const headers = { Accept: 'application/vnd.github+json' };
+      const [issueRes, commentsRes] = await Promise.all([
+        fetch(proposalDetailsUrl(repository, issueNumber), { headers }),
+        fetch(proposalCommentsUrl(repository, issueNumber), { headers })
+      ]);
+      if (!issueRes.ok || !commentsRes.ok) throw new Error('GitHub evidence API returned ' + (!issueRes.ok ? issueRes.status : commentsRes.status));
+      const [issue, comments] = await Promise.all([issueRes.json(), commentsRes.json()]);
+      const evidence = await reconcileProposalEvidence(issue, comments);
+      if (request !== evidenceRequest.current) return;
+      setSummary(evidence);
+      setFingerprint(evidence.command_enabled ? evidence.current_fingerprint : null);
+      setNotice(evidence.message);
     } catch (e) {
-      setEvidenceError(e.message);
+      if (request === evidenceRequest.current) setEvidenceError(e.message);
     } finally {
-      setEvidenceLoading(false);
+      if (request === evidenceRequest.current) setEvidenceLoading(false);
     }
   }
 
@@ -101,14 +115,25 @@ export default function ReviewBoard({ repository }) {
           <p>Review the issue's blueprint and validation comment on GitHub. Neither a closed issue nor a validation fingerprint proves human approval.</p>
           <a href={selected.url} target="_blank" rel="noreferrer" className="review-open">READ PROPOSAL ON GITHUB <ExternalLink size={14}/></a>
           <button type="button" className="review-evidence" disabled={evidenceLoading} onClick={loadEvidence}>
-            <ShieldCheck size={16}/>{evidenceLoading ? 'CHECKING VALIDATION…' : 'LOAD VALIDATION FINGERPRINT'}
+            <ShieldCheck size={16}/>{evidenceLoading ? 'CHECKING VALIDATION…' : 'CHECK CURRENT EVIDENCE'}
           </button>
-          {fingerprint && <div className="review-fingerprint"><span>CANONICAL SHA-256 (VALIDATION ONLY)</span><code>{fingerprint}</code></div>}
+          {summary && <div className="review-evidence-summary" role="status">
+            <span className={'review-evidence-state ' + (summary.state.includes('STALE') || summary.state === 'INVALID_PROPOSAL' ? 'stale' : '')}>{summary.state.replaceAll('_', ' ')}</span>
+            <p>{summary.message}</p>
+            <small>Execution authorized: NO · Implementation authorized: NO</small>
+            <div className="review-evidence-facts">
+              <span>Validation: {summary.validation_matches_current ? 'MATCHES CURRENT ISSUE' : summary.validation_fingerprint ? 'STALE' : 'NOT FOUND'}</span>
+              <span>Human recommendation: {summary.decision?.decision?.replaceAll('_', ' ') || 'NOT RECORDED'}{summary.decision && !summary.decision_matches_current ? ' (STALE)' : ''}</span>
+              {summary.decision?.reviewer && <span>Last recorded reviewer: @{summary.decision.reviewer}</span>}
+              {summary.steps?.length > 0 && <span>Steps: {summary.steps.join(' → ')}</span>}
+            </div>
+          </div>}
+          {summary?.current_fingerprint && <div className="review-fingerprint"><span>CURRENT BLUEPRINT SHA-256 (NOT AUTHORIZATION)</span><code>{summary.current_fingerprint}</code></div>}
           <div className="review-commands">
             <button type="button" disabled={!fingerprint} onClick={() => copyDecision('accept')}><Clipboard size={14}/> COPY ACCEPT-FOR-IMPLEMENTATION</button>
             <button type="button" disabled={!fingerprint} onClick={() => copyDecision('decline')}><Clipboard size={14}/> COPY DECLINE</button>
           </div>
-          <small className="review-warning">Commands must be posted manually as GitHub comments. The workflow verifies repository write access and an exact matching fingerprint. Accepting a proposal does not implement or execute it.</small>
+          <small className="review-warning">Commands must be posted manually as GitHub comments. The workflow verifies repository write access, the current blueprint fingerprint, and prior validator evidence. A review recommendation never implements or executes a blueprint.</small>
           {notice && <p className="review-notice" role="status">{notice}</p>}
           {evidenceError && <p className="review-message-error" role="alert">{evidenceError}</p>}
         </>}
