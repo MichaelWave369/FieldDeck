@@ -4,7 +4,7 @@ import { assessPilot, githubRunUrl, latestProposalNumber, pilotIssueNumber, pilo
 import { proposalInboxUrl } from './review-board-model.mjs';
 
 /** Explicit operator actions only, no background polling and no account token. */
-export default function PilotConsole({ repository, onExport }) {
+export default function PilotConsole({ repository, onExport, onVerifiedEvidence }) {
   const [issueInput, setIssueInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -31,6 +31,7 @@ export default function PilotConsole({ repository, onExport }) {
     setError('');
     setNotice('');
     setReport(null);
+    onVerifiedEvidence?.(null);
     try {
       let issueNo;
       if (useLatest) {
@@ -47,6 +48,11 @@ export default function PilotConsole({ repository, onExport }) {
       // Recompute using live workflow details, not comment claims.
       const checked = await assessPilot(issue, comments, repository, { validation, decision });
       setReport(checked);
+      if (checked.status === 'HUMAN_REVIEW_RECORDED'
+        && checked.proposal_state === 'ACCEPTED_FOR_IMPLEMENTATION_REVIEW'
+        && checked.validation_workflow_verified && checked.human_review_workflow_verified) {
+        onVerifiedEvidence?.({issue, report:checked, repository});
+      }
       setNotice('Read-only check completed against public GitHub issue, comments and linked workflow runs.');
     } catch (e) {
       setError(e.message);
@@ -65,7 +71,7 @@ export default function PilotConsole({ repository, onExport }) {
       </div>
       <div className="pilot-step"><b>02</b><strong>Verify GitHub evidence</strong><p>After submitting, enter your issue number or inspect the latest proposal. Public REST API checks are read-only.</p>
         <label htmlFor="pilot-issue-number">GITHUB ISSUE NUMBER</label>
-        <input id="pilot-issue-number" inputMode="numeric" value={issueInput} onChange={e=>setIssueInput(e.target.value)} placeholder="e.g. 11"/>
+        <input id="pilot-issue-number" inputMode="numeric" value={issueInput} onChange={e=>{setIssueInput(e.target.value);onVerifiedEvidence?.(null);}} placeholder="e.g. 11"/>
         <div className="pilot-actions">
           <button type="button" disabled={busy} onClick={()=>verify(false)}><ShieldCheck size={14}/> VERIFY ISSUE</button>
           <button type="button" disabled={busy} onClick={()=>verify(true)}><RefreshCw size={14}/> VERIFY LATEST</button>
