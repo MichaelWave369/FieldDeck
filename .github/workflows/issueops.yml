@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   authorize:
-    if: startsWith(github.event.issue.title, 'FD RUN: ')
+    if: "startsWith(github.event.issue.title, 'FD RUN: ')"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
