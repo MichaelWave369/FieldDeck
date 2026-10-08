@@ -4,6 +4,7 @@ import ChainLab from './ChainLab.jsx';
 import ReviewBoard from './ReviewBoard.jsx';
 import PilotConsole from './PilotConsole.jsx';
 import PromotionGate from './PromotionGate.jsx';
+import CloudObservations from './CloudObservations.jsx';
 import { proposalIssueUrl } from './proposal-model.mjs';
 import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
 import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
@@ -221,6 +222,7 @@ export default function App() {
         <a className="nav-link chain-side-link" href="#chain-lab"><ListChecks size={17} strokeWidth={1.7}/><span>Chain Lab</span><ArrowUpRight size={13}/></a>
         <a className="nav-link chain-side-link" href="#review-board"><ShieldCheck size={17} strokeWidth={1.7}/><span>Review Board</span><ArrowUpRight size={13}/></a>
         <a className="nav-link chain-side-link" href="#pilot-console"><Activity size={17} strokeWidth={1.7}/><span>Pilot Console</span><ArrowUpRight size={13}/></a>
+        <a className="nav-link chain-side-link" href="#cloud-observations"><Activity size={17} strokeWidth={1.7}/><span>Cloud Workers</span><ArrowUpRight size={13}/></a>
         <a className="nav-link chain-side-link" href="#promotion-gate"><ShieldCheck size={17} strokeWidth={1.7}/><span>Promotion Gate</span><ArrowUpRight size={13}/></a>
         <div className="side-caption decks-caption">MY DECKS</div>
         <nav className="navigation deck-nav" aria-label="Personal decks">
@@ -334,6 +336,7 @@ export default function App() {
               <ArrowUpRight size={15}/>
             </a>)}
           </section>
+          <CloudObservations />
           <ChainLab
             catalogActions={actions}
             onPropose={(blueprint) => {

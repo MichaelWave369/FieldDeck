@@ -216,3 +216,36 @@
 .promotion-candidate>p{margin:0;color:#d2b6a1;font-size:11px;line-height:1.65}
 @media(max-width:780px){.promotion-heading,.promotion-panel{flex-direction:column;align-items:stretch}.promotion-locked{width:max-content;max-width:100%}.promotion-build{flex-shrink:1}}
 @media(max-width:600px){.promotion-facts{grid-template-columns:1fr;gap:6px}}
+
+
+/* FCW-02: external observation only. Visually separate from execution controls. */
+.cloud-observations{margin-top:46px;padding-top:25px;border-top:1px solid #2b4654}
+.cloud-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.cloud-heading h2{font-size:26px;letter-spacing:-.04em;margin:5px 0 8px;color:#effdf8}
+.cloud-heading p{max-width:650px;color:#a4b9c6;font-size:12px;line-height:1.65}
+.cloud-state{border:1px solid #9c714c;color:#f8b67d;background:#2d2b2c;border-radius:30px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.04em}
+.cloud-state.healthy{color:#9cf0cf;background:#113e3a;border-color:#4b9985}
+.cloud-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0}
+.cloud-toolbar span{color:#82aaad;font-size:11px;display:flex;align-items:center;gap:7px}
+.cloud-toolbar button{display:flex;align-items:center;gap:7px;background:#1c4849;border:1px solid #478778;color:#b9ffeb;padding:11px 13px;border-radius:7px;font-size:10px;font-weight:700}
+.cloud-toolbar button:disabled{opacity:.6;cursor:wait}
+.cloud-warning{background:#342a28;border:1px solid #946a51;border-radius:8px;padding:15px;color:#f2c4a0;font-size:12px;line-height:1.7}
+.cloud-warning a,.cloud-note a,.cloud-subheading a{color:#92ecd1;text-decoration:none}
+.cloud-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.cloud-stats>div,.cloud-task{background:#122630;border:1px solid #355460;border-radius:9px;padding:16px}
+.cloud-stats small{display:block;color:#85a8b0;letter-spacing:.1em;font-size:9px;margin-bottom:9px}
+.cloud-stats strong{font-size:12px;color:#d7f8ee;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cloud-task-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:11px}
+.cloud-task{display:flex;flex-direction:column;gap:11px;min-width:0}
+.cloud-task strong{color:#ccece4;font-size:13px}
+.cloud-task small{color:#91b4be;font-size:11px;overflow-wrap:anywhere}
+.cloud-task-state{color:#e2b28d;font-size:10px;font-weight:900;letter-spacing:.07em}
+.cloud-task-state.ok{color:#79eac9}.cloud-task-state.error{color:#f1ac92}
+.cloud-subheading{margin-top:20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#8eb4ba;font-size:10px;font-weight:800;letter-spacing:.08em}
+.cloud-subheading a{display:flex;align-items:center;gap:5px}
+.cloud-history{border:1px solid #34525a;background:#10232d;border-radius:9px;margin-top:11px;overflow:hidden}
+.cloud-history>div{display:grid;grid-template-columns:90px 1fr 160px;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #24404b;font-size:12px;color:#d3e6e5}
+.cloud-history>div:last-child{border-bottom:0}
+.cloud-history small{color:#91abb4;text-align:right}
+.cloud-note{color:#809daa;font-size:11px;line-height:1.75;margin:15px 0}
+@media(max-width:760px){.cloud-stats,.cloud-task-grid{grid-template-columns:1fr}.cloud-history>div{grid-template-columns:60px 1fr}.cloud-history small{display:none}}
