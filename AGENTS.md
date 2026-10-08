@@ -27,3 +27,7 @@ Only one compiled chain is executable: `field-health-sweep`, the fixed three-ste
 ## v0.5 blueprint proposals
 
 Treat incoming fielddeck.chain.blueprint JSON as untrusted data. Apply strict schema and catalog checks. A status of REQUEST_ELIGIBLE from local preflight only indicates matching the sole reviewed template; it is explicitly **not execution approval or evidence**. Custom blueprints cannot execute. See docs/BLUEPRINTS.md.
+
+## v0.6 review proposals
+
+Agents can submit only bounded, schema-valid `FD PROPOSE:` issues as review proposals. They are distinct from the `FD RUN:` issue execution flow. The validator produces `VALID_FOR_REVIEW` or `REJECTED` evidence, never permission, execution, or automatic promotion. Do not submit confidential data to public issues. See docs/BLUEPRINT-REVIEW.md.

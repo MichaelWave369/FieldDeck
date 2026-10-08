@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ExternalLink, FileDown, FileUp, ListChecks, Plus, RotateCcw, Trash2, ShieldCheck } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, FileDown, FileUp, ListChecks, Plus, RotateCcw, Trash2, ShieldCheck, Send } from 'lucide-react';
 import { APPROVED_CHAIN, STEPS, addStep, exportDraft, isApprovedChain, moveStep, normalizeSteps, removeStep } from './chain-model.mjs';
 
 import { BLUEPRINT_TEMPLATES, MAX_BLUEPRINT_BYTES, createBlueprint, parseBlueprint, preflightChain } from './blueprint-model.mjs';
@@ -12,10 +12,11 @@ function readLocal() {
   } catch { return [...APPROVED_CHAIN.steps]; }
 }
 
-export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
+export default function ChainLab({ onRequest, onExport, onPropose, catalogActions = [] }) {
   const [steps, setSteps] = useState(readLocal);
   const [newStep, setNewStep] = useState(STEPS[0].id);
   const [templateId, setTemplateId] = useState(BLUEPRINT_TEMPLATES[0].id);
+  const [blueprintName, setBlueprintName] = useState('Local Chain Draft');
   const [preflight, setPreflight] = useState(null);
   const [blueprintNotice, setBlueprintNotice] = useState('');
   const [blueprintError, setBlueprintError] = useState('');
@@ -28,6 +29,7 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
     const chosen = BLUEPRINT_TEMPLATES.find(item => item.id === templateId);
     if (!chosen) return;
     setSteps([...chosen.steps]);
+    setBlueprintName(chosen.label);
     setBlueprintError('');
     setBlueprintNotice('Template loaded as a local draft. Nothing has executed.');
   }
@@ -41,6 +43,7 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
       const text = await file.text();
       const result = parseBlueprint(text);
       setSteps(result.steps);
+      setBlueprintName(result.name);
       setBlueprintError('');
       setBlueprintNotice('Imported "' + result.name + '" as a draft. No execution permission was imported.');
     } catch (err) {
@@ -58,9 +61,21 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
 
   function exportBlueprint() {
     try {
-      onExport(createBlueprint(steps));
+      onExport(createBlueprint(steps, blueprintName));
       setBlueprintError('');
     } catch (err) { setBlueprintError(err.message); }
+  }
+  function proposeForReview() {
+    try {
+      const report = preflightChain(steps, catalogActions);
+      if (report.status === 'BLOCKED') throw new Error('Preflight blocked: every step must be catalog-ready.');
+      const blueprint = createBlueprint(steps, blueprintName);
+      onPropose(blueprint);
+      setBlueprintError('');
+      setBlueprintNotice('GitHub review issue prepared. Submit the issue there to request validation, not execution.');
+    } catch (err) {
+      setBlueprintError(err.message);
+    }
   }
   useEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(steps)); } catch {} }, [steps]);
 
@@ -77,6 +92,8 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
       </select>
       <button type="button" onClick={loadTemplate}>LOAD TEMPLATE</button>
       <span>Only Field Health Sweep is executable through an authenticated GitHub request.</span>
+      <label htmlFor="blueprint-name">BLUEPRINT NAME</label>
+      <input id="blueprint-name" type="text" maxLength={64} value={blueprintName} onChange={e => setBlueprintName(e.target.value)} placeholder="Name this proposal..." />
     </div>
     <div className="chain-track" aria-label="Chain steps">
       {steps.length === 0 && <p className="chain-empty">Add a step to build a draft.</p>}
@@ -126,6 +143,7 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
         <button type="button" className="chain-secondary" onClick={exportBlueprint}><FileDown size={15}/> EXPORT BLUEPRINT</button>
         <input ref={fileInput} type="file" accept=".json,application/json" className="blueprint-file" aria-label="Import blueprint JSON" onChange={importFile}/>
         <button type="button" className="chain-secondary" onClick={() => fileInput.current?.click()}><FileUp size={15}/> IMPORT BLUEPRINT</button>
+        <button type="button" className="chain-secondary chain-propose" disabled={proposal.status === 'BLOCKED'} onClick={proposeForReview}><Send size={15}/> PROPOSE FOR REVIEW</button>
         <button type="button" className="chain-execute" disabled={!approved} onClick={onRequest}><ExternalLink size={15}/> REQUEST APPROVED CHAIN</button>
       </div>
     </div>
