@@ -66,3 +66,7 @@ Live pilot issue [#11](https://github.com/MichaelWave369/FieldDeck/issues/11) ge
 ## v1.0: Promotion Gate
 
 After a **real, verified, accepted human review**, the Pilot Console unlocks a read-only **Promotion Gate**. It creates a versioned, disabled implementation-candidate JSON packet with exact blueprint fingerprint, linked validation and human-decision run references, and a fixed implementation checklist. It can open a prefilled **FD IMPLEMENT:** planning issue or export the candidate; neither creates a runnable task or authorizes a code change. A separate, human-reviewed implementation PR remains mandatory. See [Promotion Gate](docs/PROMOTION-GATE.md).
+
+## FCW-02: read-only FieldCloudWorker observations
+
+FieldDeck now includes a Cloud Workers observation panel backed by the independent [FieldCloudWorker](https://github.com/MichaelWave369/FieldCloudWorker) Pages receipts and correlated against GitHub Actions metadata. The panel only displays three allowlisted task observations and recent history, with a stale-state warning. It does not permit execution or approve any remote worker request. See [FCW-02 contract](docs/FCW-02-CLOUD-OBSERVATIONS.md).
