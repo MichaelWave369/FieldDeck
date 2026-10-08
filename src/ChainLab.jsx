@@ -22,7 +22,7 @@ export default function ChainLab({ onRequest, onExport, catalogActions = [] }) {
   const fileInput = useRef(null);
   const proposal = preflightChain(steps, catalogActions);
   const approved = isApprovedChain(steps) && proposal.status === 'REQUEST_ELIGIBLE';
-  useEffect(() => { setPreflight(null); setBlueprintNotice(''); }, [steps]);
+  useEffect(() => { setPreflight(null); }, [steps]);
 
   function loadTemplate() {
     const chosen = BLUEPRINT_TEMPLATES.find(item => item.id === templateId);
