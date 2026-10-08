@@ -1,0 +1,221 @@
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Activity, ArrowUpRight, Bot, BrainCircuit, Check, ChevronRight,
+  Clock3, Database, Download, ExternalLink, HardDrive, Layers3,
+  LockKeyhole, MousePointerClick, Search, ShieldCheck, Terminal, Zap
+} from 'lucide-react';
+
+const ICONS = {
+  activity: Activity, terminal: Terminal, 'mouse-pointer-click': MousePointerClick,
+  'brain-circuit': BrainCircuit, download: Download, 'external-link': ExternalLink,
+  bot: Bot, 'hard-drive': HardDrive, database: Database, 'clock-3': Clock3
+};
+const NAV = ['All actions', 'Skills', 'Scripts', 'Macros', 'Automations', 'Diagnostics', 'Agents', 'Apps'];
+const CATALOG_URL = import.meta.env.BASE_URL + 'fielddeck.manifest.json';
+const REPO = import.meta.env.VITE_REPOSITORY || 'MichaelWave369/FieldDeck';
+const WORKFLOW_URL = 'https://github.com/' + REPO + '/actions/workflows/run-task.yml';
+const VALID_KINDS = new Set(['workflow', 'copy', 'export', 'link', 'future']);
+
+function validatedCatalog(data) {
+  if (!data || !Array.isArray(data.actions) || data.execution_policy?.default !== 'deny') {
+    throw new Error('Invalid or unsafe catalog policy');
+  }
+  const used = new Set();
+  for (const a of data.actions) {
+    if (!a.id || !a.label || !a.group || !VALID_KINDS.has(a.kind) || used.has(a.id)) {
+      throw new Error('Invalid catalog action');
+    }
+    used.add(a.id);
+  }
+  return data;
+}
+function loadHistory() {
+  try {
+    const items = JSON.parse(localStorage.getItem('fielddeck-interactions-v1') || '[]');
+    return Array.isArray(items) ? items.slice(0, 10) : [];
+  } catch { return []; }
+}
+function saveJSON(name, value) {
+  const blob = new Blob([JSON.stringify(value, null, 2) + '\n'], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+function Glyph({ name, size = 20 }) {
+  const Icon = ICONS[name] || Zap;
+  return <Icon size={size} strokeWidth={1.75} aria-hidden="true" />;
+}
+
+export default function App() {
+  const [catalog, setCatalog] = useState(null);
+  const [error, setError] = useState('');
+  const [category, setCategory] = useState('All actions');
+  const [search, setSearch] = useState('');
+  const [selectedId, setSelectedId] = useState(null);
+  const [history, setHistory] = useState(loadHistory);
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(CATALOG_URL, { signal: controller.signal })
+      .then((r) => { if (!r.ok) throw new Error('Catalog HTTP ' + r.status); return r.json(); })
+      .then((v) => {
+        const next = validatedCatalog(v);
+        setCatalog(next);
+        setSelectedId(next.actions[0]?.id || null);
+      })
+      .catch((e) => { if (e.name !== 'AbortError') setError(e.message); });
+    return () => controller.abort();
+  }, []);
+
+  const actions = catalog?.actions || [];
+  const ready = actions.filter((a) => a.status === 'ready').length;
+  const visible = useMemo(() => actions.filter((a) => {
+    const matches = category === 'All actions' || a.group === category;
+    const text = (a.label + ' ' + a.description + ' ' + a.group).toLowerCase();
+    return matches && text.includes(search.toLowerCase());
+  }), [actions, category, search]);
+  const selected = visible.find((a) => a.id === selectedId) || visible[0] || null;
+
+  function record(action, status, detail) {
+    const event = {
+      id: Date.now() + '-' + Math.random().toString(16).slice(2),
+      title: action.label, status, detail,
+      time: new Date().toLocaleString()
+    };
+    setHistory((previous) => {
+      const next = [event, ...previous].slice(0, 10);
+      try { localStorage.setItem('fielddeck-interactions-v1', JSON.stringify(next)); } catch {}
+      return next;
+    });
+    setNotice(detail);
+  }
+  async function activate(action) {
+    if (!action || action.status !== 'ready') return;
+    try {
+      if (action.kind === 'workflow') {
+        window.open(WORKFLOW_URL, '_blank', 'noopener,noreferrer');
+        record(action, 'HANDOFF', 'Opened authenticated GitHub Actions. Choose Run workflow and select ' + action.task + '. Nothing has run yet.');
+      } else if (action.kind === 'copy') {
+        await navigator.clipboard.writeText(action.payload);
+        record(action, 'LOCAL', 'Research skill copied to clipboard.');
+      } else if (action.kind === 'export') {
+        saveJSON('fielddeck.manifest.json', catalog);
+        record(action, 'LOCAL', 'Action catalog downloaded to your device.');
+      } else if (action.kind === 'link') {
+        const url = new URL(action.url);
+        if (url.protocol !== 'https:') throw new Error('Only HTTPS links are allowed');
+        window.open(url.href, '_blank', 'noopener,noreferrer');
+        record(action, 'HANDOFF', 'Opened external application in another tab.');
+      }
+    } catch (e) {
+      record(action, 'ERROR', 'Action failed: ' + e.message);
+    }
+  }
+
+  return (
+    <div className="shell">
+      <aside className="sidebar">
+        <a className="brand" href={import.meta.env.BASE_URL} aria-label="FieldDeck home">
+          <span className="brand-symbol"><Layers3 size={23} /></span>
+          <span><strong>FIELDDECK</strong><small>THE ACTION FABRIC</small></span>
+        </a>
+        <div className="side-caption">WORKSPACE</div>
+        <nav className="navigation" aria-label="Action categories">
+          {NAV.map((name) => {
+            const Icon = ({
+              'All actions': Layers3, Skills: BrainCircuit, Scripts: Terminal,
+              Macros: MousePointerClick, Automations: Clock3, Diagnostics: Activity,
+              Agents: Bot, Apps: ExternalLink
+            })[name];
+            return <button type="button" key={name} onClick={() => setCategory(name)} className={category === name ? 'nav-link active' : 'nav-link'}>
+              <Icon size={17} strokeWidth={1.7} /><span>{name}</span>
+              {name === 'All actions' && <b>{actions.length || '·'}</b>}
+            </button>;
+          })}
+        </nav>
+        <div className="sidebar-spacer" />
+        <div className="side-note"><ShieldCheck size={18} /><strong>GOVERNED BY DEFAULT</strong><span>Discovery never grants execution authority.</span></div>
+        <a className="repo-link" href={'https://github.com/' + REPO} target="_blank" rel="noreferrer">VIEW SOURCE <ArrowUpRight size={14}/></a>
+      </aside>
+      <main className="main">
+        <header className="topbar">
+          <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.1.0</span></div>
+        </header>
+
+        <div className="content">
+          <div className="eyebrow"><span className="eyebrow-line" /> HUMAN + AGENT COMMAND INTERFACE</div>
+          <section className="hero">
+            <div>
+              <h1>Every action.<br/><em>One deck.</em></h1>
+              <p>Launch reviewed skills, scripts, macros, and workflows from a single governed surface. Built for humans. Readable by agents.</p>
+              <div className="hero-meta"><span><span className="micro-dot"/> CATALOG ONLINE</span><span>CAPABILITY ≠ AUTHORITY</span></div>
+            </div>
+            <div className="hero-visual" aria-hidden="true"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="core"><Zap size={38} strokeWidth={1.4}/></div></div>
+          </section>
+
+          <div className="stats">
+            <div className="stat"><span>TOTAL ACTIONS</span><strong>{actions.length}</strong><small>REGISTRY ENTRIES</small></div>
+            <div className="stat"><span>READY</span><strong>{ready}</strong><small>BROWSER + HANDOFF</small></div>
+            <div className="stat"><span>LOCKED</span><strong>{actions.length - ready}</strong><small>FUTURE / GOVERNED</small></div>
+            <div className="stat policy"><ShieldCheck size={24}/><div><strong>DEFAULT DENY</strong><small>EXECUTION POLICY ACTIVE</small></div></div>
+          </div>
+
+          <div className="section-header">
+            <div><span className="section-kicker">01 / COMMAND LIBRARY</span><h2>{category}</h2></div>
+            <label className="search"><Search size={17}/><input placeholder="Search actions..." aria-label="Search actions" value={search} onChange={(e) => setSearch(e.target.value)}/></label>
+          </div>
+
+          {error && <div role="alert" className="error">Catalog unavailable: {error}</div>}
+          {!catalog && !error && <div className="loading">Reading the action catalog…</div>}
+          {catalog && visible.length === 0 && <div className="loading">No actions matched your filters.</div>}
+
+          <div className="action-layout">
+            <div className="tiles">
+              {visible.map((a) => <button type="button" key={a.id} onClick={() => setSelectedId(a.id)} className={'tile ' + (selected?.id === a.id ? 'selected' : '') + (a.status === 'locked' ? ' locked' : '')}>
+                <div className="tile-top"><div className="tile-icon"><Glyph name={a.icon} size={23}/></div>{a.status === 'locked' ? <LockKeyhole size={16}/> : <ArrowUpRight size={16}/>}</div>
+                <strong>{a.label}</strong>
+                <p>{a.description}</p>
+                <div className="tile-bottom"><span>{a.group.toUpperCase()}</span><span className={a.status === 'ready' ? 'state ready' : 'state'}>{a.status.toUpperCase()}</span></div>
+              </button>)}
+            </div>
+            <aside className="inspector">
+              <div className="inspector-header"><span>02 / ACTION INSPECTOR</span><span className="inspector-dot"/></div>
+              {selected ? <>
+                <div className="inspect-glyph"><Glyph name={selected.icon} size={30}/></div>
+                <div className="inspect-group">{selected.group.toUpperCase()} / {selected.kind.toUpperCase()}</div>
+                <h3>{selected.label}</h3>
+                <p>{selected.description}</p>
+                <div className="inspect-details">
+                  <div><span>STATUS</span><strong>{selected.status.toUpperCase()}</strong></div>
+                  <div><span>RISK LEVEL</span><strong>{selected.risk.toUpperCase()}</strong></div>
+                  <div><span>EXECUTION</span><strong>{selected.kind === 'workflow' ? 'GITHUB HANDOFF' : selected.kind === 'future' ? 'DISABLED' : 'BROWSER'}</strong></div>
+                </div>
+                <button type="button" className="activate" disabled={selected.status !== 'ready'} onClick={() => activate(selected)}>
+                  {selected.status === 'locked' ? <LockKeyhole size={17}/> : selected.kind === 'workflow' ? <ExternalLink size={17}/> : <Zap size={17}/>}
+                  {selected.status === 'locked' ? 'NOT ENABLED' : selected.kind === 'workflow' ? 'OPEN WORKFLOW TO RUN' : 'ACTIVATE'}
+                </button>
+                <p className="inspector-footnote">{selected.kind === 'workflow' ? 'Opens the authenticated GitHub Actions page. No job runs from this button.' : 'Catalog discovery alone never authorizes remote execution.'}</p>
+              </> : <p>Select an action to inspect its permissions and available controls.</p>}
+            </aside>
+          </div>
+
+          {notice && <div className="notice" role="status"><Check size={16} />{notice}<button type="button" aria-label="Dismiss" onClick={() => setNotice('')}>×</button></div>}
+
+          <section className="ledger">
+            <div className="ledger-title"><div><span className="section-kicker">03 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
+              history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
+          </section>
+          <footer>FIELDDECK / v0.1.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+        </div>
+      </main>
+    </div>
+  );
+}
