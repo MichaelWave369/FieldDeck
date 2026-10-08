@@ -2,7 +2,7 @@
  * Read-only GitHub Actions status projection for public repositories.
  * Never treat these records as local execution receipts or permissions.
  */
-const FIXED_TASKS = new Set(['catalog-health', 'script-smoke', 'macro-demo']);
+const FIXED_TASKS = new Set(['catalog-health', 'script-smoke', 'macro-demo', 'field-health-sweep']);
 
 export function publicRunsApi(repo) {
   if (typeof repo !== 'string' || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) throw new Error('Invalid repository');

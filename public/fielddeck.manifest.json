@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.4.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -105,6 +105,17 @@
       "risk": "high"
     },
     {
+      "id": "field-health-sweep",
+      "label": "Field Health Sweep",
+      "description": "Run a fixed three-step chain through GitHub IssueOps, with per-step receipts.",
+      "group": "Automations",
+      "icon": "list-checks",
+      "kind": "workflow",
+      "task": "field-health-sweep",
+      "status": "ready",
+      "risk": "low"
+    },
+    {
       "id": "scheduled-chain",
       "label": "Scheduled Chain",
       "description": "Planned versioned schedule and automation support.",
@@ -131,5 +142,23 @@
     "personal_decks": "localStorage-only",
     "execution_history": "public-github-actions-readonly",
     "discovery_grants_authority": false
+  },
+  "chain_protocol": {
+    "version": "v0.4",
+    "drafts": "localStorage-only",
+    "custom_chains_executable": false,
+    "approved_presets": [
+      {
+        "id": "field-health-sweep",
+        "steps": [
+          "catalog-health",
+          "script-smoke",
+          "macro-demo"
+        ],
+        "requires_request": true,
+        "requires_repository_write": true
+      }
+    ],
+    "execution_authority": "GitHub IssueOps permission gate"
   }
 }

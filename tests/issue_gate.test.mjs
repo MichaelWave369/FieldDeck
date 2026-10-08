@@ -40,6 +40,12 @@ test('only write, maintain, and admin users may trigger execution', () => {
   }
 });
 
+test('approved chain request retains exact task and marker gate', () => {
+  const url = new URL(issueRequestUrl('MichaelWave369/FieldDeck', 'field-health-sweep'));
+  assert.equal(parseIssueTask(url.searchParams.get('title'), url.searchParams.get('body')), 'field-health-sweep');
+  assert.match(url.searchParams.get('body'), /Reviewed steps/);
+});
+
 test('no authority from mere catalog discovery', () => {
   assert.equal(parseIssueTask('catalog-health', issueMarker('catalog-health')), null);
 });

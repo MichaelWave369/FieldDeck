@@ -33,3 +33,40 @@
 .runs-error a{color:#75dfc8}.runs-error a:hover{text-decoration:underline}
 @media(max-width:970px){.deck-nav{display:flex;overflow-x:auto;max-height:none}.decks-caption{padding-top:8px;margin-top:10px}.new-deck{width:max-content}.deck-form{max-width:310px}}
 @media(max-width:640px){.live-row{grid-template-columns:88px 1fr 16px;gap:8px;padding:12px 8px}.live-row>span:nth-of-type(2){display:none}.run-pill{font-size:8px;padding:5px 6px}}
+
+/* v0.4 Chain Lab: fully styled to match the existing midnight/mint design. */
+.chain-side-link{margin-top:12px;background:#10222e;border:1px solid #2b5356;color:#8ff0d6!important}
+.chain-side-link:hover{background:#183c3d}
+.chain-side-link>svg:last-child{margin-left:auto}
+.chain-lab{border-top:1px solid #263849;margin-top:47px;padding-top:29px;scroll-margin-top:24px}
+.chain-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:23px}
+.chain-intro h2{font-size:25px;letter-spacing:-.04em;margin:7px 0 10px}
+.chain-intro p{font-size:12px;line-height:1.65;color:#9bafc0;max-width:620px;margin:0}
+.chain-mode{display:flex;align-items:center;gap:9px;color:#dcc9a2;background:#2b291e;border:1px solid #4e4833;border-radius:8px;padding:12px 15px;font-size:10px;letter-spacing:.08em;font-weight:800;white-space:nowrap}
+.chain-mode.approved{color:#86efca;background:#183a35;border-color:#376f5d}
+.chain-track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;background:#0e1928;border-radius:12px;border:1px solid #263f4a;padding:15px}
+.chain-step{position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;background:linear-gradient(145deg,#152f39,#121f31);border:1px solid #33615e;padding:16px 13px;border-radius:9px}
+.chain-index{color:#77ecd0;font-weight:800;font-size:11px;letter-spacing:.05em;border:1px solid #3b7670;border-radius:5px;padding:5px 6px}
+.chain-step-content{display:flex;flex-direction:column;min-width:0;gap:7px;flex:1}
+.chain-step-content strong{font-size:12px;color:#dcefe8}
+.chain-step-content small{font-size:10px;color:#89a7af;line-height:1.5}
+.chain-step-tools{display:flex;gap:3px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.chain-step-tools button{width:25px;height:25px;display:grid;place-items:center;background:#1c3840;color:#94e2ce;border:1px solid #385f61;border-radius:5px}
+.chain-step-tools button:disabled{opacity:.3;cursor:not-allowed}
+.chain-step-tools button:hover:not(:disabled){background:#25585a}
+.chain-empty{color:#8aa0ae;font-size:12px;padding:4px}
+.chain-compose-controls{display:flex;align-items:center;gap:9px;margin:15px 0 20px}
+.chain-compose-controls label{font-size:10px;letter-spacing:.09em;color:#87a6ad;font-weight:700}
+.chain-compose-controls select{min-width:185px;max-width:100%;border:1px solid #34595a;border-radius:6px;background:#152938;color:#ccf5eb;padding:11px;font-size:11px}
+.chain-compose-controls button,.chain-buttons button{border-radius:7px;padding:11px 12px;font-size:10px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:7px}
+.chain-add{background:#23564f;border:1px solid #438274;color:#b9fae6}
+.chain-add:disabled,.chain-buttons button:disabled{opacity:.45;cursor:not-allowed}
+.chain-bottom{border-top:1px solid #30404a;padding-top:17px}
+.chain-bottom p{color:#90abb3;line-height:1.55;font-size:11px;margin:0 0 14px}
+.chain-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.chain-secondary{background:#172c38;color:#a1daca;border:1px solid #3a5a5f}
+.chain-execute{margin-left:auto;background:#7beacb;color:#102f2a;border:1px solid #91e4cf}
+.chain-secondary:hover,.chain-add:hover{filter:brightness(1.1)}
+.chain-execute:hover:not(:disabled){background:#baffeb}
+@media(max-width:1250px){.chain-track{grid-template-columns:repeat(2,minmax(0,1fr))}.chain-execute{margin-left:0}}
+@media(max-width:640px){.chain-intro{align-items:flex-start;flex-direction:column}.chain-track{grid-template-columns:1fr}.chain-compose-controls{flex-wrap:wrap;align-items:stretch}.chain-compose-controls label{width:100%}.chain-buttons{flex-direction:column}.chain-buttons button{width:100%}}
