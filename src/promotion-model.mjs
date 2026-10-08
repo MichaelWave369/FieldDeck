@@ -48,7 +48,7 @@ export async function createPromotionCandidate(issue, report, repo, digest=brows
   const hash=await digest(parsed.blueprint);
   assertIdentity(repo,issue.number,hash,report.validation_run_id,report.human_review_run_id);
   if(report.current_fingerprint!==hash)throw new Error('Proposal changed since review verification');
-  const slug=parsed.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36);
+  const slug=parsed.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36) || 'unnamed';
   const candidate={
     schema_version:PROMOTION_VERSION,
     kind:PROMOTION_KIND,
@@ -111,7 +111,10 @@ export function parsePromotionCandidate(json) {
     || v.issue_url!=='https://github.com/'+v.repository+'/issues/'+v.issue_number
     || typeof v.canonical_sha256!=='string'||!SHA.test(v.canonical_sha256)
     || v.human_decision!=='ACCEPTED_FOR_IMPLEMENTATION_REVIEW'||v.evidence_type!=='public-github-api-observation'
-    || ![v.validation_run_url,v.reviewer_decision_run_url].every(s=>typeof s==='string' && new RegExp('^https://github\\.com/'+v.repository.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'/actions/runs/[1-9][0-9]{0,18}$').test(s))
+    || ![v.validation_run_url,v.reviewer_decision_run_url].every(url=>{
+      const prefix='https://github.com/'+v.repository+'/actions/runs/';
+      return typeof url==='string' && url.startsWith(prefix) && RUN.test(url.slice(prefix.length));
+    })
     || v.validation_run_url===v.reviewer_decision_run_url)throw new Error('Candidate provenance invalid');
   if(!Array.isArray(c.implementation_gates)||JSON.stringify(c.implementation_gates)!==JSON.stringify(TASKS)
     ||!exactKeys(g,['execution','implementation','requires_separate_code_pr','requires_human_code_review','requires_green_ci','automatically_promoted'])
