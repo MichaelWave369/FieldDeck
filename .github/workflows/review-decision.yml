@@ -69,11 +69,14 @@ jobs:
             core.setOutput('decision',decision.decision);
             core.setOutput('reviewer',decision.reviewer);
             core.setOutput('fingerprint',decision.canonical_sha256);
+            const fs = require('node:fs');
+            fs.mkdirSync('receipts', {recursive:true});
+            fs.writeFileSync('receipts/validated-review-event.json', JSON.stringify(event));
       - name: Record fixed review evidence
         if: steps.authority.outputs.authorized == 'true'
         env:
           FD_REVIEWER_PERMISSION: ${{ steps.authority.outputs.permission }}
-        run: node scripts/review_decision.mjs "$GITHUB_EVENT_PATH" receipts/review-decision.json
+        run: node scripts/review_decision.mjs receipts/validated-review-event.json receipts/review-decision.json
       - name: Upload review evidence
         if: steps.authority.outputs.authorized == 'true'
         uses: actions/upload-artifact@v4
