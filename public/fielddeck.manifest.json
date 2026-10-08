@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.6.0",
+  "schema_version": "0.7.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -186,5 +186,20 @@
       "VALID_FOR_REVIEW",
       "REJECTED"
     ]
+  },
+  "review_board_protocol": {
+    "version": "v0.7",
+    "inbox": "public-github-issues-readonly",
+    "validation_evidence": "github-actions-bot-comment",
+    "decision_route": "github-issue-comment",
+    "decision_commands": [
+      "accept",
+      "decline"
+    ],
+    "required_review_permission": "write",
+    "fingerprint_required": true,
+    "automatic_execution": false,
+    "automatic_implementation": false,
+    "approval_source_of_truth": "trusted-github-workflow-artifact"
   }
 }

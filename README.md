@@ -4,7 +4,7 @@ Human + agent action deck. React on GitHub Pages, a public agent-readable manife
 
 **Governance:** capability does not grant authority. Static Pages cannot execute scripts on your machine, store secrets, or authorize an agent.
 
-## v0.6 features
+## v0.7 features
 
 - Responsive React dashboard, live action filtering, action inspector, recent local interaction log.
 - Six ready cards: 3 GitHub Actions handoffs and 3 browser-only actions.
@@ -46,3 +46,7 @@ Chain Lab supports three templates, strict JSON blueprint import/export and loca
 ## v0.6 blueprint review proposals
 
 A human or agent can prepare a **review-only** GitHub issue from Chain Lab using the PROPOSE FOR REVIEW button. A separate validation workflow checks the strict JSON blueprint, publishes a sanitized evidence artifact and SHA-256 fingerprint, and comments the outcome. The issue is public and must contain no secrets. Validation **never executes or approves** the proposed chain. See [Blueprint Review protocol](docs/BLUEPRINT-REVIEW.md).
+
+## v0.7 Review Board
+
+A read-only public GitHub proposal inbox lets operators open and inspect proposals. GitHub Actions validation fingerprints can be fetched from authentic bot comments to construct exact copyable human review commands. A new GitHub `issue_comment:created` gate checks actual repository write permission and exact blueprint fingerprint before recording **ACCEPTED_FOR_IMPLEMENTATION_REVIEW** or **DECLINED** evidence. Neither decision authorizes execution or installs an implementation. See [Review Board](docs/REVIEW-BOARD.md).

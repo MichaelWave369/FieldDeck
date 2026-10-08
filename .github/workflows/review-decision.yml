@@ -1,0 +1,113 @@
+name: FieldDeck human review decision
+on:
+  issue_comment:
+    types: [created]
+
+# Only repository writers may record a review recommendation; execution is impossible here.
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: fielddeck-review-decision-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  review-decision:
+    if: "startsWith(github.event.comment.body, '/fielddeck review ') && !github.event.issue.pull_request"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check current proposal and actual author permission
+        id: authority
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const path = require('node:path');
+            const mod = await import(pathToFileURL(path.join(process.env.GITHUB_WORKSPACE,'scripts/review_decision.mjs')).href);
+            const user = context.payload.comment?.user?.login;
+            if (!user) return;
+            let permission = 'none';
+            try {
+              const info = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner, repo: context.repo.repo, username: user
+              });
+              permission = info.data.permission;
+            } catch(error) {
+              core.warning('Reviewer permission lookup failed; denying.');
+              return;
+            }
+            let current;
+            try {
+              const data = await github.rest.issues.get({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number
+              });
+              current = data.data;
+            } catch(error) {
+              core.warning('Proposal lookup failed; denying.');
+              return;
+            }
+            const event = {issue: current, comment: context.payload.comment};
+            const decision = mod.evaluateReview(event, permission);
+            if (!decision) {
+              core.warning('Review decision denied. Author, proposal, permission, or fingerprint invalid.');
+              return;
+            }
+            core.setOutput('authorized','true');
+            core.setOutput('permission',permission);
+            core.setOutput('decision',decision.decision);
+            core.setOutput('reviewer',decision.reviewer);
+            core.setOutput('fingerprint',decision.canonical_sha256);
+            const fs = require('node:fs');
+            fs.mkdirSync('receipts', {recursive:true});
+            fs.writeFileSync('receipts/validated-review-event.json', JSON.stringify(event));
+      - name: Record fixed review evidence
+        if: steps.authority.outputs.authorized == 'true'
+        env:
+          FD_REVIEWER_PERMISSION: ${{ steps.authority.outputs.permission }}
+        run: node scripts/review_decision.mjs receipts/validated-review-event.json receipts/review-decision.json
+      - name: Upload review evidence
+        if: steps.authority.outputs.authorized == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fielddeck-review-decision-${{ github.event.issue.number }}-${{ github.run_id }}
+          path: receipts/review-decision.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Post recorded human review decision
+        if: steps.authority.outputs.authorized == 'true'
+        uses: actions/github-script@v7
+        env:
+          DECISION: ${{ steps.authority.outputs.decision }}
+          REVIEWER: ${{ steps.authority.outputs.reviewer }}
+          FINGERPRINT: ${{ steps.authority.outputs.fingerprint }}
+        with:
+          script: |
+            const action = process.env.DECISION;
+            const text = [
+              '### FieldDeck human review decision',
+              '',
+              '- Decision: **' + action.replaceAll('_',' ') + '**',
+              '- Reviewer: @' + process.env.REVIEWER,
+              '- Blueprint SHA-256: `' + process.env.FINGERPRINT + '`',
+              '- Execution authorized: **NO**',
+              '- Implementation authorized: **NO**',
+              '- Review run: https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId,
+              '',
+              'This is a human recommendation only. Only separately reviewed and merged code can add a new executable action.'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number, body: text
+            });
