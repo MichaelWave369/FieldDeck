@@ -15,3 +15,7 @@ Future action requests will require authenticated identity, scoped intent, expli
 ## v0.2 GitHub IssueOps
 
 Use the public request_protocol in the manifest. Submit a GitHub issue with title `FD RUN: <allowlisted-task>` and the exact matching marker defined by scripts/issue_gate.mjs. The GitHub Actions gate verifies the issue author's current write/maintain/admin repository permission before any approved task executes. Public issue creation is not an authorization grant. Do not claim success until the Actions receipt exists. See docs/ISSUEOPS.md.
+
+## v0.3 observability and decks
+
+The live execution rail is read-only public GitHub Actions telemetry. Each run URL is constructed from a fixed repository and numeric run ID. Personal decks exist only in the operator's browser localStorage and never create, grant, or change capabilities. See docs/DECKS-TELEMETRY.md.

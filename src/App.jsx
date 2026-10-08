@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { issueRequestUrl } from '../scripts/issue_gate.mjs';
+import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
+import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
 import {
   Activity, ArrowUpRight, Bot, BrainCircuit, Check, ChevronRight,
   Clock3, Database, Download, ExternalLink, HardDrive, Layers3,
-  LockKeyhole, MousePointerClick, Search, ShieldCheck, Terminal, Zap
+  LockKeyhole, MousePointerClick, Search, ShieldCheck, Terminal, Zap, Plus, Star, Trash2, RefreshCw
 } from 'lucide-react';
 
 const ICONS = {
@@ -35,6 +37,10 @@ function loadHistory() {
     return Array.isArray(items) ? items.slice(0, 10) : [];
   } catch { return []; }
 }
+function loadDecks() {
+  try { return normalizeDecks(JSON.parse(localStorage.getItem('fielddeck-decks-v1') || 'null')); }
+  catch { return normalizeDecks(null); }
+}
 function saveJSON(name, value) {
   const blob = new Blob([JSON.stringify(value, null, 2) + '\n'], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -59,6 +65,71 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
   const [history, setHistory] = useState(loadHistory);
   const [notice, setNotice] = useState('');
+  const [decks, setDecks] = useState(loadDecks);
+  const [pinTarget, setPinTarget] = useState(BASE_DECK.id);
+  const [showDeckForm, setShowDeckForm] = useState(false);
+  const [deckName, setDeckName] = useState('');
+  const [deckError, setDeckError] = useState('');
+  const [runs, setRuns] = useState([]);
+  const [runsLoading, setRunsLoading] = useState(true);
+  const [runsError, setRunsError] = useState('');
+  const [lastChecked, setLastChecked] = useState(null);
+
+  useEffect(() => {
+    try { localStorage.setItem('fielddeck-decks-v1', JSON.stringify(decks)); } catch {}
+  }, [decks]);
+
+  async function refreshRuns(signal) {
+    setRunsLoading(true);
+    setRunsError('');
+    try {
+      const response = await fetch(publicRunsApi(REPO), {
+        signal,
+        headers: { Accept: 'application/vnd.github+json' }
+      });
+      if (!response.ok) throw new Error(response.status === 403 ? 'GitHub API rate limit or access denied (403)' : 'GitHub API returned ' + response.status);
+      setRuns(parsePublicRuns(await response.json(), REPO));
+      setLastChecked(new Date().toLocaleTimeString());
+    } catch (e) {
+      if (e.name !== 'AbortError') setRunsError(e.message);
+    } finally {
+      if (!signal?.aborted) setRunsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const controller = new AbortController();
+    refreshRuns(controller.signal);
+    return () => controller.abort();
+  }, []);
+
+  function createPersonalDeck(event) {
+    event.preventDefault();
+    try {
+      const id = 'deck-' + globalThis.crypto.randomUUID();
+      const next = addDeck(decks, deckName, id);
+      setDecks(next);
+      setPinTarget(id);
+      setCategory('@deck:' + id);
+      setDeckName('');
+      setDeckError('');
+      setShowDeckForm(false);
+    } catch (e) { setDeckError(e.message); }
+  }
+
+  function removePersonalDeck(id) {
+    if (!window.confirm('Delete this local deck? Catalog actions will not be deleted.')) return;
+    setDecks((current) => removeDeck(current, id));
+    setCategory('All actions');
+    setPinTarget(BASE_DECK.id);
+  }
+
+  function toggleSelectedPin(action) {
+    try {
+      setDecks(current => toggleInDeck(current, pinTarget, action.id));
+      setNotice('Updated your local deck. This does not change execution permissions.');
+    } catch (e) { setNotice(e.message); }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -75,11 +146,13 @@ export default function App() {
 
   const actions = catalog?.actions || [];
   const ready = actions.filter((a) => a.status === 'ready').length;
+  const currentDeck = category.startsWith('@deck:') ? decks.find(d => d.id === category.slice(6)) : null;
+  const selectedPinDeck = decks.find(d => d.id === pinTarget) || decks[0];
   const visible = useMemo(() => actions.filter((a) => {
-    const matches = category === 'All actions' || a.group === category;
+    const matches = currentDeck ? currentDeck.actionIds.includes(a.id) : category === 'All actions' || a.group === category;
     const text = (a.label + ' ' + a.description + ' ' + a.group).toLowerCase();
     return matches && text.includes(search.toLowerCase());
-  }), [actions, category, search]);
+  }), [actions, category, currentDeck, search]);
   const selected = visible.find((a) => a.id === selectedId) || visible[0] || null;
 
   function record(action, status, detail) {
@@ -139,6 +212,19 @@ export default function App() {
             </button>;
           })}
         </nav>
+        <div className="side-caption decks-caption">MY DECKS</div>
+        <nav className="navigation deck-nav" aria-label="Personal decks">
+          {decks.map(deck => <button key={deck.id} type="button"
+            onClick={() => { setCategory('@deck:' + deck.id); setPinTarget(deck.id); }}
+            className={category === '@deck:' + deck.id ? 'nav-link active' : 'nav-link'}>
+            <Star size={16} strokeWidth={1.7}/><span>{deck.name}</span><b>{deck.actionIds.length}</b>
+          </button>)}
+        </nav>
+        {showDeckForm ? <form className="deck-form" onSubmit={createPersonalDeck}>
+          <input aria-label="New deck name" maxLength={36} value={deckName} onChange={e => setDeckName(e.target.value)} placeholder="Deck name..." required/>
+          <div><button type="submit">CREATE</button><button type="button" onClick={() => {setShowDeckForm(false);setDeckError('');}}>CANCEL</button></div>
+          {deckError && <small role="alert">{deckError}</small>}
+        </form> : <button type="button" className="new-deck" onClick={() => setShowDeckForm(true)}><Plus size={15}/> NEW DECK</button>}
         <div className="sidebar-spacer" />
         <div className="side-note"><ShieldCheck size={18} /><strong>GOVERNED BY DEFAULT</strong><span>Discovery never grants execution authority.</span></div>
         <a className="repo-link" href={'https://github.com/' + REPO} target="_blank" rel="noreferrer">VIEW SOURCE <ArrowUpRight size={14}/></a>
@@ -146,7 +232,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.2.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.3.0</span></div>
         </header>
 
         <div className="content">
@@ -168,7 +254,9 @@ export default function App() {
           </div>
 
           <div className="section-header">
-            <div><span className="section-kicker">01 / COMMAND LIBRARY</span><h2>{category}</h2></div>
+            <div><span className="section-kicker">01 / COMMAND LIBRARY</span><h2>{currentDeck ? currentDeck.name : category}</h2>
+              {currentDeck && currentDeck.id !== BASE_DECK.id && <button type="button" className="delete-deck" onClick={() => removePersonalDeck(currentDeck.id)}><Trash2 size={13}/> DELETE THIS DECK</button>}
+            </div>
             <label className="search"><Search size={17}/><input placeholder="Search actions..." aria-label="Search actions" value={search} onChange={(e) => setSearch(e.target.value)}/></label>
           </div>
 
@@ -197,6 +285,16 @@ export default function App() {
                   <div><span>RISK LEVEL</span><strong>{selected.risk.toUpperCase()}</strong></div>
                   <div><span>EXECUTION</span><strong>{selected.kind === 'workflow' ? 'GITHUB ISSUE REQUEST' : selected.kind === 'future' ? 'DISABLED' : 'BROWSER'}</strong></div>
                 </div>
+                <div className="deck-picker">
+                  <label htmlFor="deck-target">PERSONAL DECK</label>
+                  <select id="deck-target" value={pinTarget} onChange={e => setPinTarget(e.target.value)}>
+                    {decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  </select>
+                  <button type="button" className="pin-action" onClick={() => toggleSelectedPin(selected)}>
+                    <Star size={15} fill={selectedPinDeck.actionIds.includes(selected.id) ? 'currentColor' : 'none'}/>
+                    {selectedPinDeck.actionIds.includes(selected.id) ? 'REMOVE FROM DECK' : 'ADD TO DECK'}
+                  </button>
+                </div>
                 <button type="button" className="activate" disabled={selected.status !== 'ready'} onClick={() => activate(selected)}>
                   {selected.status === 'locked' ? <LockKeyhole size={17}/> : selected.kind === 'workflow' ? <ExternalLink size={17}/> : <Zap size={17}/>}
                   {selected.status === 'locked' ? 'NOT ENABLED' : selected.kind === 'workflow' ? 'REQUEST VIA GITHUB' : 'ACTIVATE'}
@@ -209,13 +307,30 @@ export default function App() {
 
           {notice && <div className="notice" role="status"><Check size={16} />{notice}<button type="button" aria-label="Dismiss" onClick={() => setNotice('')}>×</button></div>}
 
+          <section className="live-executions">
+            <div className="ledger-title"><div><span className="section-kicker">03 / VERIFIED EXECUTIONS</span><h2>Live run history</h2></div>
+              <button type="button" className="refresh-runs" onClick={() => refreshRuns()} disabled={runsLoading}>
+                <RefreshCw size={15}/> {runsLoading ? 'CHECKING…' : 'REFRESH'}
+              </button>
+            </div>
+            <p className="ledger-receipts">Read-only history from the public GitHub Actions API. A browser handoff is not a completed run. {lastChecked && 'Last checked: ' + lastChecked}</p>
+            {runsError && <div className="runs-error" role="alert">{runsError}. <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">View GitHub Actions <ArrowUpRight size={12}/></a></div>}
+            {!runsError && runsLoading && runs.length === 0 && <p className="runs-empty">Checking public GitHub runs…</p>}
+            {!runsError && !runsLoading && runs.length === 0 && <p className="runs-empty">No authenticated IssueOps requests found yet.</p>}
+            {runs.map(run => <a className="live-row" key={run.id} href={run.url} target="_blank" rel="noreferrer">
+              <span className={'run-pill ' + (run.conclusion || run.status)}>{(run.conclusion || run.status).replaceAll('_',' ').toUpperCase()}</span>
+              <strong>{run.task}</strong>
+              <span>{run.createdAt ? new Date(run.createdAt).toLocaleString() : 'Unknown date'}</span>
+              <ArrowUpRight size={15}/>
+            </a>)}
+          </section>
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">03 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <div className="ledger-title"><div><span className="section-kicker">04 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.2.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.3.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>
