@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.9.0",
+  "schema_version": "0.9.1",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -235,6 +235,10 @@
       "UNCONFIRMED_REVIEW_RUN",
       "HUMAN_REVIEW_RECORDED",
       "BLOCKED"
+    ],
+    "workflow_path_compatibility": [
+      "repository-relative",
+      "repository-qualified-with-ref"
     ]
   }
 }

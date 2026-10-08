@@ -70,6 +70,33 @@ test('verified validation and review are independent evidence steps',async()=>{
   assert.equal(next.execution_authorized,false);
   assert.equal(next.is_execution_receipt,false);
 });
+test('live GitHub REST response uses repo-relative workflow path',async()=>{
+  // Regression for public run #37730046473 and issue #11:
+  // the initial pilot falsely reported UNCONFIRMED_VALIDATION_RUN.
+  const githubApiRun={
+    id:37730046473,
+    repository:{full_name:repo},
+    status:'completed',
+    conclusion:'success',
+    event:'issues',
+    name:'FieldDeck blueprint review validation',
+    path:'.github/workflows/blueprint-review.yml'
+  };
+  assert.equal(isVerifiedRun(githubApiRun,repo,'37730046473','validation'),true);
+  assert.equal(isVerifiedRun({...githubApiRun,path:'.github/workflows/review-decision.yml'},repo,'37730046473','validation'),false);
+  assert.equal(isVerifiedRun({...githubApiRun,path:'evil/.github/workflows/blueprint-review.yml'},repo,'37730046473','validation'),false);
+  assert.equal(isVerifiedRun({...githubApiRun,path:'.github/workflows/blueprint-review.yml@other'},repo,'37730046473','validation'),false);
+  assert.equal(isVerifiedRun({...githubApiRun,repository:{full_name:'attacker/repo'}},repo,'37730046473','validation'),false);
+  assert.equal(isVerifiedRun({...githubApiRun,conclusion:'failure'},repo,'37730046473','validation'),false);
+
+  const realComment={...validation,body:validation.body.replace('/1234','/37730046473')};
+  const report=await assessPilot(issue,[realComment],repo,{validation:githubApiRun},fp);
+  assert.equal(report.status,'VALIDATION_VERIFIED');
+  assert.equal(report.validation_workflow_verified,true);
+  assert.equal(report.execution_authorized,false);
+  assert.equal(report.is_execution_receipt,false);
+});
+
 test('spoofed, failed, wrong-workflow, wrong-repo and pending runs never verify',()=>{
   assert.equal(isVerifiedRun(run(1234,'validation'),repo,'1234','validation'),true);
   assert.equal(isVerifiedRun(run(1234,'decision'),repo,'1234','validation'),false);
