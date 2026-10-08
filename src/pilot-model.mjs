@@ -66,7 +66,7 @@ export function isVerifiedRun(run, repo, runId, kind) {
   const event = kind === 'validation' ? 'issues' : 'issue_comment';
   const name = kind === 'validation' ? 'FieldDeck blueprint review validation' : 'FieldDeck human review decision';
   if (!file) return false;
-  return run && String(run.id) === runId
+  return !!run && String(run.id) === runId
     && run.repository?.full_name === repo
     && run.status === 'completed' && run.conclusion === 'success'
     && run.event === event
