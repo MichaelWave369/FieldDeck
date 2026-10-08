@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.7.0",
+  "schema_version": "0.8.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -201,5 +201,16 @@
     "automatic_execution": false,
     "automatic_implementation": false,
     "approval_source_of_truth": "trusted-github-workflow-artifact"
+  },
+  "review_evidence_protocol": {
+    "version": "v0.8",
+    "current_issue_revalidation": true,
+    "public_comments_scanned_per_request": 100,
+    "trusted_comment_author": "github-actions[bot]",
+    "fingerprint": "canonical_sha256",
+    "accepted_comment_requires_prior_validation": true,
+    "reject_stale_validation": true,
+    "review_does_not_grant_execution": true,
+    "no_auto_implementation": true
   }
 }

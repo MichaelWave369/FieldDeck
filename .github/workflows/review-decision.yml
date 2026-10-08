@@ -58,7 +58,26 @@ jobs:
               core.warning('Proposal lookup failed; denying.');
               return;
             }
-            const event = {issue: current, comment: context.payload.comment};
+            let validation;
+            try {
+              const result = await github.rest.issues.listComments({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number, per_page: 100, page: 1
+              });
+              const pathToModel = pathToFileURL(path.join(process.env.GITHUB_WORKSPACE,'src/review-board-model.mjs'));
+              const { parseValidationEvidence } = await import(pathToModel.href);
+              const previous = result.data.filter(c => c.id !== context.payload.comment.id
+                && c.created_at <= context.payload.comment.created_at);
+              validation = parseValidationEvidence(previous);
+            } catch(error) {
+              core.warning('Validator evidence lookup failed; denying.');
+              return;
+            }
+            const event = {
+              issue: current,
+              comment: context.payload.comment,
+              validated_fingerprint: validation?.fingerprint || null
+            };
             const decision = mod.evaluateReview(event, permission);
             if (!decision) {
               core.warning('Review decision denied. Author, proposal, permission, or fingerprint invalid.');

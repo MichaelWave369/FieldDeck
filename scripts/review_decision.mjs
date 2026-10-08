@@ -15,6 +15,7 @@ export function evaluateReview(event, permission) {
   const comment = event?.comment;
   if (!issue || !comment || issue.pull_request
     || !Number.isSafeInteger(issue.number) || issue.number <= 0
+    || issue.state !== 'open'
     || typeof comment.body !== 'string'
     || !eligiblePermission(permission)
     || !/^[A-Za-z0-9-]{1,39}$/.test(comment.user?.login || '')) return null;
@@ -23,7 +24,7 @@ export function evaluateReview(event, permission) {
   const proposal = parseProposalIssue(issue.title, issue.body);
   if (!proposal) return null;
   const canonicalSha = createHash('sha256').update(JSON.stringify(proposal.blueprint)).digest('hex');
-  if (match[2] !== canonicalSha) return null;
+  if (match[2] !== canonicalSha || event?.validated_fingerprint !== canonicalSha) return null;
   return {
     schema_version: '0.7.0',
     kind: 'fielddeck.blueprint.human-review-decision',

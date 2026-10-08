@@ -139,3 +139,17 @@
 .review-empty a{display:inline-flex;gap:5px;align-items:center;color:#89e8cc;font-size:10px;font-weight:800;text-decoration:none}
 @media(max-width:850px){.review-grid{grid-template-columns:1fr}.review-items{max-height:320px}}
 @media(max-width:640px){.review-head{align-items:flex-start;flex-direction:column}}
+
+/* v0.8 review-evidence reconciliation, native FieldDeck midnight/mint styling. */
+.review-evidence-summary{display:grid;gap:10px;border:1px solid #3d655f;border-radius:8px;background:#112930;padding:15px}
+.review-evidence-state{display:inline-block;width:max-content;max-width:100%;overflow-wrap:anywhere;font-size:11px;letter-spacing:.06em;color:#92f4d8;font-weight:800;border:1px solid #336c60;border-radius:6px;background:#1c3b3c;padding:8px 10px}
+.review-evidence-state.stale{background:#44322b;color:#f4bc9f;border-color:#825742}
+.review-evidence-summary>p{font-size:11px;color:#b2c8d0;line-height:1.6;margin:0}
+.review-evidence-summary>small{font-size:10px;font-weight:750;color:#9ee6cf}
+.review-evidence-facts{display:grid;gap:7px;padding-top:11px;border-top:1px solid #304d54}
+.review-evidence-facts span{font-size:10px;color:#a7bfc8;overflow-wrap:anywhere}
+.review-history{display:grid;gap:7px;padding-top:10px;border-top:1px solid #2d4d53}
+.review-history>strong{color:#8be4d1;font-size:10px;letter-spacing:.08em}
+.review-history-row{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;padding:9px 10px;border:1px solid #34545b;background:#102635;border-radius:6px}
+.review-history-row span{font-size:10px;color:#d2e7e7}
+.review-history-row small{font-size:9px;color:#8eb1b9}
