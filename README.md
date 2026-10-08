@@ -62,3 +62,7 @@ The **Review Pilot Console** guides one real GitHub proposal/validation/human-re
 ## v0.9.1: real GitHub run-path compatibility
 
 Live pilot issue [#11](https://github.com/MichaelWave369/FieldDeck/issues/11) generated a successful validator run [#37730046473](https://github.com/MichaelWave369/FieldDeck/actions/runs/37730046473), but the v0.9 dashboard incorrectly marked it UNCONFIRMED_VALIDATION_RUN. The REST API reported `path: ".github/workflows/blueprint-review.yml"`; the verifier only accepted an owner-qualified `@refs/` path. v0.9.1 accepts both exact expected formats and retains all repository, workflow, event, run ID, completion and success checks. Once deployed, run **Pilot Console → Verify Issue → 11**; no new pilot proposal is needed. The validation run does not authorize execution.
+
+## v1.0: Promotion Gate
+
+After a **real, verified, accepted human review**, the Pilot Console unlocks a read-only **Promotion Gate**. It creates a versioned, disabled implementation-candidate JSON packet with exact blueprint fingerprint, linked validation and human-decision run references, and a fixed implementation checklist. It can open a prefilled **FD IMPLEMENT:** planning issue or export the candidate; neither creates a runnable task or authorizes a code change. A separate, human-reviewed implementation PR remains mandatory. See [Promotion Gate](docs/PROMOTION-GATE.md).
