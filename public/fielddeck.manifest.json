@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.9.1",
+  "schema_version": "1.0.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -240,5 +240,18 @@
       "repository-relative",
       "repository-qualified-with-ref"
     ]
+  },
+  "implementation_candidate_protocol": {
+    "version": "v1.0",
+    "kind": "fielddeck.implementation.candidate",
+    "status": "CANDIDATE_NOT_EXECUTABLE",
+    "source": "verified-public-github-pilot",
+    "requires_accepted_human_review": true,
+    "requires_matching_blueprint_sha256": true,
+    "requires_separate_code_pr": true,
+    "execution_authorized": false,
+    "implementation_authorized": false,
+    "runner": "none",
+    "automatic_promotion": false
   }
 }
