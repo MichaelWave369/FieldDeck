@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -114,5 +114,16 @@
       "status": "locked",
       "risk": "medium"
     }
-  ]
+  ],
+  "request_protocol": {
+    "type": "github_issue",
+    "version": "v0.2",
+    "confirmation_required": true,
+    "required_repository_permission": "write",
+    "title_pattern": "FD RUN: {task}",
+    "request_marker_pattern": "<!-- fielddeck:run:v0.2:{task} -->",
+    "workflow_file": ".github/workflows/issueops.yml",
+    "receipt": "github_actions_artifact_and_issue_comment",
+    "execution_mode": "authenticated-human-or-agent-request-only"
+  }
 }
