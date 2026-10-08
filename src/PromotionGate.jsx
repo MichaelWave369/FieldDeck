@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ClipboardCheck, FileDown, GitPullRequestArrow, ShieldAlert, ArrowUpRight, ExternalLink } from 'lucide-react';
 import { createPromotionCandidate, implementationIssueUrl } from './promotion-model.mjs';
 
@@ -7,6 +7,8 @@ export default function PromotionGate({ context, onExport }) {
   const [error,setError]=useState('');
   const [candidate,setCandidate]=useState(null);
   const [notice,setNotice]=useState('');
+  // An outdated verified issue must never leave an old candidate looking current.
+  useEffect(()=>{setCandidate(null);setNotice('');setError('');},[context]);
 
   async function prepare() {
     setError('');setNotice('');setCandidate(null);
