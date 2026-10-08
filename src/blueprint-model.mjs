@@ -81,7 +81,7 @@ export function parseBlueprint(input) {
 export function preflightChain(steps, catalogActions = []) {
   const structurallyValid = Array.isArray(steps)
     && steps.length > 0 && steps.length <= MAX_STEPS
-    && steps.every(id => IDS.has(id));
+    && steps.every(id => IDs.has(id));
   const actions = new Map(
     Array.isArray(catalogActions)
       ? catalogActions.filter(a => a && typeof a.id === 'string').map(a => [a.id, a])
