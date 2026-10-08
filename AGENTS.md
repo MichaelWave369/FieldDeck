@@ -19,3 +19,7 @@ Use the public request_protocol in the manifest. Submit a GitHub issue with titl
 ## v0.3 observability and decks
 
 The live execution rail is read-only public GitHub Actions telemetry. Each run URL is constructed from a fixed repository and numeric run ID. Personal decks exist only in the operator's browser localStorage and never create, grant, or change capabilities. See docs/DECKS-TELEMETRY.md.
+
+## v0.4 approved chains
+
+Only one compiled chain is executable: `field-health-sweep`, the fixed three-step reviewed sequence described in `chain_protocol`. User-composed chains are local drafts and never grant execution authority. Agents may inspect or export drafts but must not claim to execute them. Authentic GitHub IssueOps requests still require repository write permission and explicit issue submission. Per-step execution evidence resides in the Actions artifact; see docs/CHAIN-LAB.md.

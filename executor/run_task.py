@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+from time import perf_counter
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -36,19 +37,57 @@ def macro_demo():
     ]
     return {"steps": steps, "completed_steps": len(steps), "external_side_effects": False}
 
-TASKS = {"catalog-health": catalog_health, "script-smoke": script_smoke, "macro-demo": macro_demo}
+# Fixed primitives. A chain is a reviewed function, not a user-supplied script.
+PRIMITIVES = {"catalog-health": catalog_health, "script-smoke": script_smoke, "macro-demo": macro_demo}
+APPROVED_SWEEP = ("catalog-health", "script-smoke", "macro-demo")
+
+def field_health_sweep():
+    steps = []
+    for action_id in APPROVED_SWEEP:
+        started = perf_counter()
+        try:
+            result = PRIMITIVES[action_id]()
+            steps.append({
+                "position": len(steps) + 1,
+                "action_id": action_id,
+                "status": "PASS",
+                "duration_ms": round((perf_counter() - started) * 1000, 3),
+                "result": result,
+            })
+        except Exception as exc:
+            # Do not leak exception messages or stack details in public receipts.
+            steps.append({
+                "position": len(steps) + 1,
+                "action_id": action_id,
+                "status": "FAIL",
+                "duration_ms": round((perf_counter() - started) * 1000, 3),
+                "error_type": type(exc).__name__,
+            })
+            break
+    return {
+        "status": "PASS" if len(steps) == len(APPROVED_SWEEP) and all(s["status"] == "PASS" for s in steps) else "FAIL",
+        "playbook_id": "field-health-sweep",
+        "steps": steps,
+        "completed_steps": len([s for s in steps if s["status"] == "PASS"]),
+        "expected_steps": len(APPROVED_SWEEP),
+        "external_side_effects": False,
+    }
+
+TASKS = {**PRIMITIVES, "field-health-sweep": field_health_sweep}
 
 def run(task_id, output):
     if task_id not in TASKS:
         raise ValueError("Not allowlisted: " + repr(task_id))
+    result = TASKS[task_id]()
+    status = result.get("status", "PASS")
     receipt = {
-        "schema_version": "0.1.0", "task_id": task_id, "status": "PASS",
+        "schema_version": "0.4.0", "task_id": task_id, "status": status,
         "executed_at_utc": datetime.now(timezone.utc).isoformat(),
         "github_run_id": os.environ.get("GITHUB_RUN_ID"),
         "request_channel": os.environ.get("FIELDDECK_REQUEST_CHANNEL", "local-or-manual"),
         "request_issue": os.environ.get("FIELDDECK_ISSUE_NUMBER"),
         "requested_by": os.environ.get("FIELDDECK_REQUESTER"),
-        "runner": "github-actions-or-local-cli", "result": TASKS[task_id](),
+        "runner": "github-actions-or-local-cli", "result": result,
         "note": "Verify receipt provenance using the GitHub Actions run."
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +99,10 @@ def main():
     parser.add_argument("--task", required=True, choices=sorted(TASKS))
     parser.add_argument("--output", type=Path, default=Path("receipts/receipt.json"))
     args = parser.parse_args()
-    print(json.dumps(run(args.task, args.output), indent=2))
+    receipt = run(args.task, args.output)
+    print(json.dumps(receipt, indent=2))
+    if receipt["status"] != "PASS":
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

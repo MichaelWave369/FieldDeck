@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { issueRequestUrl } from '../scripts/issue_gate.mjs';
+import ChainLab from './ChainLab.jsx';
 import { BASE_DECK, normalizeDecks, addDeck, toggleInDeck, removeDeck } from './deck-model.mjs';
 import { publicRunsApi, parsePublicRuns } from './run-model.mjs';
 import {
   Activity, ArrowUpRight, Bot, BrainCircuit, Check, ChevronRight,
   Clock3, Database, Download, ExternalLink, HardDrive, Layers3,
-  LockKeyhole, MousePointerClick, Search, ShieldCheck, Terminal, Zap, Plus, Star, Trash2, RefreshCw
+  LockKeyhole, MousePointerClick, Search, ShieldCheck, Terminal, Zap, Plus, Star, Trash2, RefreshCw, ListChecks
 } from 'lucide-react';
 
 const ICONS = {
   activity: Activity, terminal: Terminal, 'mouse-pointer-click': MousePointerClick,
-  'brain-circuit': BrainCircuit, download: Download, 'external-link': ExternalLink,
+  'brain-circuit': BrainCircuit, download: Download, 'external-link': ExternalLink, 'list-checks': ListChecks,
   bot: Bot, 'hard-drive': HardDrive, database: Database, 'clock-3': Clock3
 };
 const NAV = ['All actions', 'Skills', 'Scripts', 'Macros', 'Automations', 'Diagnostics', 'Agents', 'Apps'];
@@ -212,6 +213,7 @@ export default function App() {
             </button>;
           })}
         </nav>
+        <a className="nav-link chain-side-link" href="#chain-lab"><ListChecks size={17} strokeWidth={1.7}/><span>Chain Lab</span><ArrowUpRight size={13}/></a>
         <div className="side-caption decks-caption">MY DECKS</div>
         <nav className="navigation deck-nav" aria-label="Personal decks">
           {decks.map(deck => <button key={deck.id} type="button"
@@ -232,7 +234,7 @@ export default function App() {
       <main className="main">
         <header className="topbar">
           <div><span className="breadcrumb">FIELD SYSTEM</span><ChevronRight size={14}/><span>CONTROL SURFACE</span></div>
-          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.3.0</span></div>
+          <div className="topbar-right"><span className="status-dot" /> PUBLIC CATALOG <span className="version">v0.4.0</span></div>
         </header>
 
         <div className="content">
@@ -324,13 +326,24 @@ export default function App() {
               <ArrowUpRight size={15}/>
             </a>)}
           </section>
+          <ChainLab
+            onRequest={() => {
+              const chainAction = actions.find(a => a.id === 'field-health-sweep' && a.status === 'ready');
+              if (chainAction) activate(chainAction);
+              else setNotice('Approved chain is unavailable in the current catalog.');
+            }}
+            onExport={(draft) => {
+              saveJSON('fielddeck-chain-draft.json', draft);
+              setNotice('Local chain draft exported. This grants no execution permission.');
+            }}
+          />
           <section className="ledger">
-            <div className="ledger-title"><div><span className="section-kicker">04 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
+            <div className="ledger-title"><div><span className="section-kicker">05 / LOCAL EVENT LOG</span><h2>Recent interactions</h2></div><span>Browser only • not execution receipts</span></div>
             <p className="ledger-receipts">Actual run receipts are published in <a href={'https://github.com/' + REPO + '/actions/workflows/issueops.yml'} target="_blank" rel="noreferrer">GitHub Actions <ArrowUpRight size={12}/></a>. Submission and authorization happen on GitHub, not this public page.</p>
             {history.length === 0 ? <p>No actions recorded in this browser yet.</p> :
               history.map((e) => <div className="ledger-row" key={e.id}><span className="ledger-state">{e.status}</span><span>{e.title}</span><small>{e.time}</small></div>)}
           </section>
-          <footer>FIELDDECK / v0.3.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
+          <footer>FIELDDECK / v0.4.0 <span>BUILT FOR THE FIELD · DISCOVERY IS NOT AUTHORITY</span></footer>
         </div>
       </main>
     </div>

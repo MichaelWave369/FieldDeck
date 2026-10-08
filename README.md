@@ -4,7 +4,7 @@ Human + agent action deck. React on GitHub Pages, a public agent-readable manife
 
 **Governance:** capability does not grant authority. Static Pages cannot execute scripts on your machine, store secrets, or authorize an agent.
 
-## v0.3 features
+## v0.4 features
 
 - Responsive React dashboard, live action filtering, action inspector, recent local interaction log.
 - Six ready cards: 3 GitHub Actions handoffs and 3 browser-only actions.
@@ -32,3 +32,9 @@ Use npm install, npm run dev, npm run build, and npm test (Python 3 is needed fo
 v0.2 authenticated GitHub IssueOps delivered; future direct OAuth-backed gateway; v0.3 local decks and public telemetry delivered; upcoming paired local runner; v0.4 PhiBot/BrainC/SuperPhiVessel adapters; v0.5 versioned schedules and macro builder.
 
 MIT licensed.
+
+## v0.4 chain composer
+
+The visual Chain Lab builds bounded local draft sequences from reviewed action IDs. Custom sequences **do not execute**. Export them for review. Only the exact fixed **Field Health Sweep** chain (Catalog Health → Script Smoke Test → Macro Sequence) can be submitted via IssueOps. Its Python executor runs fixed functions sequentially and writes a structured per-step receipt, including fail-fast results. See [Chain Lab](docs/CHAIN-LAB.md).
+
+After merging this PR, visit FieldDeck, scroll to Chain Lab, click **REQUEST APPROVED CHAIN**, submit the prefilled GitHub issue, and inspect the run artifact.

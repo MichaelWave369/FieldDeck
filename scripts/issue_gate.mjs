@@ -2,7 +2,7 @@
  * FieldDeck IssueOps gate.
  * Pure parsers allow negative controls to run in CI. All inputs from GitHub issues are untrusted.
  */
-export const ALLOWED_TASKS = Object.freeze(['catalog-health', 'script-smoke', 'macro-demo']);
+export const ALLOWED_TASKS = Object.freeze(['catalog-health', 'script-smoke', 'macro-demo', 'field-health-sweep']);
 const PREFIX = 'FD RUN: ';
 
 export function issueMarker(task) {
@@ -34,6 +34,7 @@ export function issueRequestUrl(repository, task) {
     issueMarker(task) + '\n\n' +
     '## FieldDeck task request\n\n' +
     '**Action:** `' + task + '`\n\n' +
+    (task === 'field-health-sweep' ? '**Reviewed steps:** Catalog Health → Script Smoke Test → Macro Sequence.\n\n' : '') +
     'Confirm creation of this issue to request an execution. ' +
     'The issue author needs WRITE or greater access to the repository. ' +
     'The workflow will run this exact allowlisted task and leave a receipt.\n\n' +
