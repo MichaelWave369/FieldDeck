@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "name": "FieldDeck",
   "description": "Public discovery only; no execution rights conferred.",
   "execution_policy": {
@@ -125,5 +125,11 @@
     "workflow_file": ".github/workflows/issueops.yml",
     "receipt": "github_actions_artifact_and_issue_comment",
     "execution_mode": "authenticated-human-or-agent-request-only"
+  },
+  "view_protocol": {
+    "version": "v0.3",
+    "personal_decks": "localStorage-only",
+    "execution_history": "public-github-actions-readonly",
+    "discovery_grants_authority": false
   }
 }
